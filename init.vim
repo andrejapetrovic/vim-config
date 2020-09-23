@@ -15,7 +15,7 @@ call plug#begin('~\AppData\Local\nvim\plugged')
 	Plug 'jiangmiao/auto-pairs'
 	" Plug 'nvim-treesitter/nvim-treesitter'
 	Plug 'iamcco/markdown-preview.nvim', {'do': 'cd app & yarn install', 'for': 'markdown'}
-	" Plug 'kyazdani42/nvim-tree.lua'
+	Plug 'lambdalisue/fern.vim'
 call plug#end()
 
 set mouse=a
@@ -24,7 +24,6 @@ set updatetime=0
 set signcolumn=yes
 set clipboard=unnamedplus
 set termguicolors
-colorscheme hybrid
 set nohlsearch
 set inccommand=nosplit
 set pumheight=15
@@ -39,6 +38,9 @@ set nobackup
 set nowritebackup
 set hidden
 set textwidth=80
+
+set background=light
+colorscheme PaperColor
 
 map <Space> <Nop>
 let mapleader = " "
@@ -111,6 +113,8 @@ nnoremap <leader>d <c-^>
 nnoremap <leader>n *
 nnoremap <leader>m #
 nnoremap <leader>; %
+nnoremap <leader>b gea
+nnoremap <leader>B gEa
 
 " fzf (mostly)
 nnoremap <silent> <leader>p :Fzfp<CR>
@@ -152,6 +156,9 @@ vnoremap <silent> <c-p> :m '<-2<CR>gv=gv
 tnoremap <Esc> <c-\><c-n>
 tnoremap <c-d> <c-\><c-n>:bd!<CR>
 autocmd! FileType fzf tnoremap <buffer> <esc> <c-q>
+
+" tree
+nnoremap <leader>re :Fern . -drawer -reveal=% -toggle<CR>
 
 " coc
 inoremap <silent><expr> <c-space> coc#refresh()
@@ -221,7 +228,7 @@ omap ag <Plug>(coc-git-chunk-outer)
 xmap ag <Plug>(coc-git-chunk-outer)
 
 "explorer
-nmap <leader>re :CocCommand explorer<CR>
+" nmap <leader>re :CocCommand explorer<CR>
 " end coc
 
 " term buffer
@@ -257,13 +264,7 @@ set statusline =\ %f\ \ [%p%%]\ \ %L%=%{fugitive#statusline()}\ [%(%l,%c%V%)]
 autocmd! BufNewFile,BufRead *.json,*/waybar/config set filetype=jsonc
 
 " lua require'trees'
-
 " set foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
-
-" augroup highlight_yank
-" 	autocmd!
-" 	autocmd TextYankPost * silent! lua require'vim.highlight'.on_yank("IncSearch", 200)
-" augroup END 
 
 "Color preview
 "Buggy in neovim nightly with treesitter
@@ -278,25 +279,10 @@ nnoremap <leader>ei :exe getline(".") \| PlugInstall<CR>
 
 augroup tab_stop
 	autocmd!
-	autocmd Filetype html,vim,css,xml,yaml,markdown
+	autocmd Filetype html,vim,css,xml,yaml,markdown,javascript
 				\ setlocal tabstop=2 
 				\ | setlocal shiftwidth=2
 augroup end
-
-function! FloatingWindow()
-  let buf = nvim_create_buf(v:true, v:true)
-  call setbufvar(buf, '&signcolumn', 'no')
-
-  let width = float2nr(&columns - (&columns * 2 / 10))
-  let height = 30
-  let y = &lines - height - 3
-  let x = float2nr((&columns - width) / 2)
-  let opts = { 'relative': 'editor', 'row': y, 'col': x, 'width': width, 'height': height }
-
-	" let buf = winbufnr(0)
-  call nvim_open_win(buf, v:true, opts)
-endfunction
-nnoremap <silent> <leader>tf :call FloatingWindow() \| call termopen("zsh")<CR>
 
 command! Ini :e C:\Users\andre\AppData\Local\nvim\init.vim
 command! Dok :cd C:\Users\andre\Documents\react-app
@@ -327,3 +313,42 @@ cabbrev pitanja Pitanja
 
 let g:AutoPairsShortcutFastWrap = '<M-w>'
 
+function! Start()
+    " Don't run if: we have commandline arguments, we don't have an empty
+    " buffer, if we've not invoked as vim or gvim, or if we'e start in insert mode
+    if argc()
+        return
+    endif
+
+    " Start a new buffer ...
+    enew
+
+    setlocal
+        \ bufhidden=wipe
+        \ buftype=nofile
+        \ nobuflisted
+        \ nocursorcolumn
+        \ nocursorline
+        \ nolist
+        \ noswapfile
+
+    call setline('.', [
+					\ "~/Documents/react-app",
+					\ "~/Documents/beleske",
+					\ "~/.sess/rg",
+					\ "~/.sess/grafika"
+					\])
+
+    " No modifications to this buffer
+    setlocal nomodifiable nomodified
+
+    " When we go to insert mode start a new buffer, and start insert
+    nnoremap <buffer><silent> e :enew<CR>
+    nnoremap <buffer><silent> i :enew <bar> startinsert<CR>
+    nnoremap <buffer><silent> o :enew <bar> startinsert<CR>
+		nnoremap <buffer><silent> <CR> :execute "cd" . getline(".") "\| Fern ."<CR>
+		nnoremap <buffer><silent> <c-s> :execute "source" . getline(".")<CR>
+endfunction
+
+command! StartScreen call Start()
+autocmd! VimEnter * call Start()
