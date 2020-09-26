@@ -16,6 +16,8 @@ call plug#begin('~\AppData\Local\nvim\plugged')
 	" Plug 'nvim-treesitter/nvim-treesitter'
 	Plug 'iamcco/markdown-preview.nvim', {'do': 'cd app & yarn install', 'for': 'markdown'}
 	Plug 'lambdalisue/fern.vim'
+	Plug 'MaxMEllon/vim-jsx-pretty'
+	Plug 'yuezk/vim-js'
 call plug#end()
 
 set mouse=a
@@ -75,7 +77,7 @@ augroup END
 set grepprg=rg\ --vimgrep\ --block-buffered
 set grepformat^=%f:%l:%c:%m
 "grep for word under cursor
-nnoremap <leader>rr :silent grep! "\b<C-R><C-W>\b"<CR>:copen<CR><CR>
+nnoremap <leader>rw :silent grep! "\b<C-R><C-W>\b"<CR>:copen<CR><CR>
 nnoremap <leader>rg :silent grep 
 nmap <silent> ]q :cnext<CR>
 nmap <silent> [q :cprev<CR>
@@ -112,7 +114,7 @@ nnoremap <silent> <c-j> :bprevious<CR>
 nnoremap <leader>d <c-^>
 nnoremap <leader>n *
 nnoremap <leader>m #
-nnoremap <leader>; %
+nnoremap <leader>; :call setline('.', getline('.') . ';')<CR>
 nnoremap <leader>b gea
 nnoremap <leader>B gEa
 
@@ -159,6 +161,9 @@ autocmd! FileType fzf tnoremap <buffer> <esc> <c-q>
 
 " tree
 nnoremap <leader>re :Fern . -drawer -reveal=% -toggle<CR>
+nnoremap <leader>rr :Fern . -reveal=% -opener=edit<CR>
+nnoremap <leader>rs :Fern . -reveal=% -opener=split<CR>
+nnoremap <leader>rv :Fern . -reveal=% -opener=vsplit<CR>
 
 " coc
 inoremap <silent><expr> <c-space> coc#refresh()
@@ -174,8 +179,8 @@ else
 endif
 
 " Use `[g` and `]g` to navigate diagnostics
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
+nmap <silent> [g <Plug>(coc-diagnostic-prev) :call repeat#set("\<Plug>(coc-diagnostic-prev)")<CR>
+nmap <silent> ]g <Plug>(coc-diagnostic-next) :call repeat#set("\<Plug>(coc-diagnostic-prev)")<CR>
 
 " GoTo code navigation.
 nmap <silent> <leader>gd <Plug>(coc-definition)
@@ -212,8 +217,8 @@ nmap <leader>aa  <Plug>(coc-codeaction)
 nmap <leader>af  <Plug>(coc-fix-current)
 
 " git
-nmap <leader>gp <Plug>(coc-git-prevchunk)
-nmap <leader>gn <Plug>(coc-git-nextchunk)
+nmap <silent> <leader>gp <Plug>(coc-git-prevchunk) :call repeat#set("\<Plug>(coc-git-prevchunk)")<CR>
+nmap <silent> <leader>gn <Plug>(coc-git-nextchunk) :call repeat#set("\<Plug>(coc-git-nextchunk)")<CR>
 " show chunk diff at current position
 nmap <leader>gi <Plug>(coc-git-chunkinfo)
 " show commit contains current position
@@ -284,14 +289,8 @@ augroup tab_stop
 				\ | setlocal shiftwidth=2
 augroup end
 
-command! Ini :e C:\Users\andre\AppData\Local\nvim\init.vim
-command! Dok :cd C:\Users\andre\Documents\react-app
-command! Pitanja :e C:\Users\andre\Documents\Skripte\pitanja.txt
-command! Beleske :e C:\Users\andre\Documents\beleske\rg_notes.md
+command! Ini :e $MYVIMRC
 cabbrev ini Ini
-cabbrev dok Dok
-cabbrev beleske Beleske
-cabbrev pitanja Pitanja
 
 "Treesitter slow loading time, load on command
 " function! LoadTS()
@@ -312,6 +311,7 @@ cabbrev pitanja Pitanja
 "
 
 let g:AutoPairsShortcutFastWrap = '<M-w>'
+let g:fern#default_hidden = 1
 
 function! Start()
     " Don't run if: we have commandline arguments, we don't have an empty
@@ -322,6 +322,7 @@ function! Start()
 
     " Start a new buffer ...
     enew
+		-1r ~\AppData\Local\nvim\paths.txt
 
     setlocal
         \ bufhidden=wipe
@@ -332,23 +333,42 @@ function! Start()
         \ nolist
         \ noswapfile
 
-    call setline('.', [
-					\ "~/Documents/react-app",
-					\ "~/Documents/beleske",
-					\ "~/.sess/rg",
-					\ "~/.sess/grafika"
-					\])
-
     " No modifications to this buffer
     setlocal nomodifiable nomodified
 
     " When we go to insert mode start a new buffer, and start insert
-    nnoremap <buffer><silent> e :enew<CR>
     nnoremap <buffer><silent> i :enew <bar> startinsert<CR>
-    nnoremap <buffer><silent> o :enew <bar> startinsert<CR>
 		nnoremap <buffer><silent> <CR> :execute "cd" . getline(".") "\| Fern ."<CR>
+		nnoremap <buffer><silent> <leader>p :execute "cd" . getline(".") "\| Fzfp"<CR>
 		nnoremap <buffer><silent> <c-s> :execute "source" . getline(".")<CR>
 endfunction
 
 command! StartScreen call Start()
 autocmd! VimEnter * call Start()
+autocmd! VimResized * call ResizeFZF()
+
+function! ResizeFZF()
+	if winwidth(0) < 100
+		let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
+	else
+		let g:fzf_layout = { 'window': { 'width': 0.4, 'height': 0.6 } }
+	endif
+endfunction
+
+
+nmap <silent> <Plug>qfl-next 
+			\ :cnext \| call repeat#set("\<Plug>qfl-next")<CR>
+nmap <silent> <Plug>qfl-prev
+			\ :cprevious \| call repeat#set("\<Plug>qfl-prev")<CR>
+nmap ]q <Plug>qfl-next
+nmap [q <Plug>qfl-prev
+
+function! ResizeFont(num)
+	let l:size = strpart(split(g:GuiFont, ':')[1], 1) + a:num
+	execute "Guifont! Cascadia Code:h" . l:size 
+endfunction
+
+nnoremap <silent> <c-=> :call ResizeFont(1)<CR>
+nnoremap <silent> <c--> :call ResizeFont(-1)<CR>
+nnoremap <silent> <c-0> :GuiFont! Cascadia Code:h13<CR>
+
