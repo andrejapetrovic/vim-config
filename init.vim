@@ -384,17 +384,22 @@ function! FloatingWindow()
   let buf = nvim_create_buf(v:true, v:true)
   call setbufvar(buf, '&signcolumn', 'no')
 
-  let width = float2nr(&columns * 0.9)
+	if winwidth(0) < 100
+		let width = float2nr(&columns * 0.9)
+	else
+		let width = float2nr(&columns * 0.45)
+	endif
   let height = 30
   let y = &lines - height - 10
   let x = float2nr((&columns - width) / 2)
-  let opts = { 'relative': 'editor', 'row': y, 'col': x, 'width': width, 'height': height }
+  let opts = { 'relative': 'editor', 'row': y, 'col': x, 'width': width, 'height': height, 'style': 'minimal'}
 
 	" let buf = winbufnr(0)
   call nvim_open_win(buf, v:true, opts)
 	call Exec('ls')
 
-	setlocal bufhidden=wipe buftype=nofile nobuflisted nocursorcolumn cursorline nolist noswapfile nonumber norelativenumber
+	setlocal bufhidden=wipe buftype=nofile nobuflisted nocursorcolumn cursorline 
+				\ nolist noswapfile nonumber norelativenumber ignorecase smartcase
 	norm! gg"_djG"_dd
 	setlocal nomodifiable nomodified
 
@@ -416,7 +421,9 @@ endfunction
 
 function! BuffWinDelete()
 	setlocal modifiable 
-	execute 'bd ' . split(getline("."), '"')[1]
+	" execute 'bd ' . split(getline("."), '"')[1]
+	norm! 0e
+	execute 'bd ' . expand('<cword>')
 	norm! dd
 	setlocal nomodifiable
 endfunction
