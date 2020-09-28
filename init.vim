@@ -141,10 +141,10 @@ nnoremap <leader>ts :sp \| term<CR>
 nnoremap <leader>tv :vsp \| term<CR>
 
 " windows
-nnoremap <leader>h <c-w>h
-nnoremap <leader>j <c-w>j
-nnoremap <leader>k <c-w>k
-nnoremap <leader>l <c-w>l
+nnoremap <m-h> <c-w>h
+nnoremap <m-j> <c-w>j
+nnoremap <m-k> <c-w>k
+nnoremap <m-l> <c-w>l
 nnoremap <leader>q <c-w>q
 nnoremap <leader>w <c-w>w
 
@@ -162,8 +162,14 @@ autocmd! FileType fzf tnoremap <buffer> <esc> <c-q>
 " tree
 nnoremap <leader>re :Fern . -drawer -reveal=% -toggle<CR>
 nnoremap <leader>rr :Fern . -reveal=% -opener=edit<CR>
-nnoremap <leader>rs :Fern . -reveal=% -opener=split<CR>
-nnoremap <leader>rv :Fern . -reveal=% -opener=vsplit<CR>
+nnoremap <leader>rj :Fern . -reveal=% -opener=split<CR>
+nnoremap <leader>rk :Fern . -reveal=% -opener=leftabove\ split<CR>
+nnoremap <leader>rl :Fern . -reveal=% -opener=vsplit<CR>
+nnoremap <leader>rh :Fern . -reveal=% -opener=leftabove\ vsplit<CR>
+nnoremap <leader>rJ :Fern . -reveal=% -opener=botright\ split<CR>
+nnoremap <leader>rK :Fern . -reveal=% -opener=topleft\ split<CR>
+nnoremap <leader>rL :Fern . -reveal=% -opener=botright\ vsplit<CR>
+nnoremap <leader>rH :Fern . -reveal=% -opener=topleft\ vsplit<CR>
 
 " coc
 inoremap <silent><expr> <c-space> coc#refresh()
@@ -187,8 +193,6 @@ nmap <silent> <leader>gd <Plug>(coc-definition)
 nmap <silent> <leader>gt <Plug>(coc-type-definition)
 nmap <silent> <leader>gl <Plug>(coc-implementation)
 nmap <silent> <leader>gr <Plug>(coc-references)
-
-nmap <leader>rl <Plug>(coc-rename)
 
 nnoremap <silent> K :call <SID>show_documentation()<CR>
 function! s:show_documentation()
@@ -231,6 +235,8 @@ omap ig <Plug>(coc-git-chunk-inner)
 xmap ig <Plug>(coc-git-chunk-inner)
 omap ag <Plug>(coc-git-chunk-outer)
 xmap ag <Plug>(coc-git-chunk-outer)
+
+nmap <leader>rm <Plug>(coc-rename)
 
 "explorer
 " nmap <leader>re :CocCommand explorer<CR>
@@ -278,8 +284,8 @@ lua require'colorizer'.setup()
 "partial sourcing, visual, line, paragraph
 vnoremap <leader>e "sy:@s<CR>
 nnoremap <leader>ee :exe getline(".")<CR>
-nnoremap <leader>ep ms"syip:@s<CR>
-nnoremap <leader>ef k/^endfunction<CR>V?^function<CR>"sy:@s<CR>
+nnoremap <leader>ep ms"syip:@s<CR>`s
+nnoremap <leader>ef mmk/^endfunction<CR>V?^function<CR>"sy:@s<CR>`m
 nnoremap <leader>ei :exe getline(".") \| PlugInstall<CR>
 
 augroup tab_stop
@@ -372,3 +378,56 @@ nnoremap <silent> <c-=> :call ResizeFont(1)<CR>
 nnoremap <silent> <c--> :call ResizeFont(-1)<CR>
 nnoremap <silent> <c-0> :GuiFont! Cascadia Code:h13<CR>
 
+" Opens list of buffers in floating window and make mappings for opening buffer
+" in splits
+function! FloatingWindow()
+  let buf = nvim_create_buf(v:true, v:true)
+  call setbufvar(buf, '&signcolumn', 'no')
+
+  let width = float2nr(&columns * 0.9)
+  let height = 30
+  let y = &lines - height - 10
+  let x = float2nr((&columns - width) / 2)
+  let opts = { 'relative': 'editor', 'row': y, 'col': x, 'width': width, 'height': height }
+
+	" let buf = winbufnr(0)
+  call nvim_open_win(buf, v:true, opts)
+	call Exec('ls')
+
+	setlocal bufhidden=wipe buftype=nofile nobuflisted nocursorcolumn cursorline nolist noswapfile nonumber norelativenumber
+	norm! gg"_djG"_dd
+	setlocal nomodifiable nomodified
+
+	nnoremap <buffer><silent> <ESC> :q<CR> 
+	nnoremap <buffer> s /
+	nnoremap <buffer><silent> <CR> :call BuffSplit(getline("."), 'e')<CR>
+	nnoremap <buffer><silent> <leader>l :call BuffSplit(getline("."), 'vs')<CR>
+	nnoremap <buffer><silent> <leader>h :call BuffSplit(getline("."), 'vertical leftabove split')<CR>
+	nnoremap <buffer><silent> <leader>j :call BuffSplit(getline("."), 'sp')<CR>
+	nnoremap <buffer><silent> <leader>k :call BuffSplit(getline("."), 'leftabove split')<CR>
+	nnoremap <buffer><silent> <leader>tt :call BuffSplit(getline("."), 'tabnew')<CR>
+	nnoremap <buffer><silent> <leader>d :call BuffWinDelete()<CR>
+endfunction
+
+function! BuffSplit(line, split_name)
+	q
+	execute a:split_name . ' ' . split(a:line, '"')[1]
+endfunction
+
+function! BuffWinDelete()
+	setlocal modifiable 
+	execute 'bd ' . split(getline("."), '"')[1]
+	norm! dd
+	setlocal nomodifiable
+endfunction
+
+function! Exec(command)
+    redir =>output
+    silent exec a:command
+    redir END
+    let @o = output
+    execute "put o"
+    return ''
+endfunction!
+
+nnoremap <leader>l :call FloatingWindow()<CR>
