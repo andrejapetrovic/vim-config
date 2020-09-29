@@ -2241,6 +2241,8 @@ call s:set_color_variables()
 
 call s:apply_syntax_highlightings()
 
+hi CocInfoFloat guifg=#af5f00
+
 " =============================================================================
 " Cheers!
 " vim: fdm=marker ff=unix

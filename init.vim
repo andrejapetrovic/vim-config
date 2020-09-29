@@ -382,12 +382,18 @@ endfunction!
 nnoremap <leader>l :call FloatingWindow()<CR>
 
 lua << EOF
+local lsp = require('nvim_lsp')
+
 local attach = function()
 	require'completion'.on_attach()
 	require'diagnostic'.on_attach()
 end
 
-require'nvim_lsp'.tsserver.setup {
+lsp.tsserver.setup {
+	on_attach=attach,
+}
+
+lsp.omnisharp.setup {
 	on_attach=attach,
 }
 EOF
