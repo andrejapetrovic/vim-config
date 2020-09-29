@@ -44,8 +44,8 @@ set nobackup
 set nowritebackup
 set hidden
 
-set background=dark
-colorscheme hybrid
+set background=light
+colorscheme PaperColor
 
 map <Space> <Nop>
 let mapleader = " "
@@ -392,21 +392,24 @@ end
 lsp.tsserver.setup {
 	on_attach=attach,
 }
-
 lsp.omnisharp.setup {
 	on_attach=attach,
 }
 EOF
 
-nnoremap <silent> gk 				<cmd>lua vim.lsp.buf.declaration()<CR>
-nnoremap <silent> gd 				<cmd>lua vim.lsp.buf.definition()<CR>
-nnoremap <silent> <leader>k <cmd>lua vim.lsp.buf.hover()<CR>
-nnoremap <silent> gD    		<cmd>lua vim.lsp.buf.implementation()<CR>
-nnoremap <silent> <leader>j <cmd>lua vim.lsp.buf.signature_help()<CR>
-nnoremap <silent> 1gD   		<cmd>lua vim.lsp.buf.type_definition()<CR>
-nnoremap <silent> gr    		<cmd>lua vim.lsp.buf.references()<CR>
-nnoremap <silent> g0    		<cmd>lua vim.lsp.buf.document_symbol()<CR>
-nnoremap <silent> gW    		<cmd>lua vim.lsp.buf.workspace_symbol()<CR>
+nnoremap <silent> <leader>aD 	<cmd>lua vim.lsp.buf.declaration()<CR>
+nnoremap <silent> <leader>ad 	<cmd>lua vim.lsp.buf.definition()<CR>
+nnoremap <silent> <leader>k 	<cmd>lua vim.lsp.buf.hover()<CR>
+nnoremap <silent> <leader>ai  <cmd>lua vim.lsp.buf.implementation()<CR>
+nnoremap <silent> <leader>j 	<cmd>lua vim.lsp.buf.signature_help()<CR>
+nnoremap <silent> <leader>at  <cmd>lua vim.lsp.buf.type_definition()<CR>
+nnoremap <silent> <leader>ar  <cmd>lua vim.lsp.buf.references()<CR>
+nnoremap <silent> <leader>as  <cmd>lua vim.lsp.buf.document_symbol()<CR>
+nnoremap <silent> <leader>aw  <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
+nnoremap <silent> <leader>af 	<cmd>lua vim.lsp.buf.formatting()<CR>
+nnoremap <silent> <leader>aa 	<cmd>lua vim.lsp.buf.code_action()<CR>
+nnoremap <silent> <leader>rm 	<cmd>lua vim.lsp.buf.rename()<CR>
+nnoremap <silent> <leader>ak 	<cmd>lua vim.lsp.util.show_line_diagnostics()<CR>
 
 set completeopt=menuone,noinsert
 set shortmess+=c
@@ -434,9 +437,8 @@ let g:vsnip_filetypes.typescriptreact = ['typescript']
 
 imap <silent> <c-space> <Plug>(completion_trigger)
 
-nnoremap <silent> <leader>1n :NextDiagnosticCycle<CR>
-nnoremap <silent> <leader>1p :PrevDiagnosticCycle<CR>
-nnoremap <silent> <leader>1i :lua vim.lsp.util.show_line_diagnostics()<CR>
+nnoremap <silent> <leader>an :NextDiagnosticCycle<CR>
+nnoremap <silent> <leader>ap :PrevDiagnosticCycle<CR>
 
 function! ToggleDiagType()
 	w
