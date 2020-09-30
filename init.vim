@@ -130,12 +130,12 @@ nnoremap <silent> <leader>sm :Marks<CR>
 nnoremap <leader>so :OSess<CR>
 nnoremap <leader>sp :OProj<CR>
 nnoremap <leader>sr :RSess<CR>
-nnoremap <leader>ss :mks! ~/.local/share/sess/
+" nnoremap <leader>ss :mks! ~/.local/share/sess/
 nnoremap <leader>sa :w<CR>
 nnoremap <leader>sl :w<CR>
 nnoremap <leader>sq :wq<CR>
 nnoremap <leader>sd :cd %:p:h<CR>
-nnoremap <leader>se :Lex<CR>
+" nnoremap <leader>se :Lex<CR>
 nnoremap <leader>st :%s/\s\+$//e<CR>
 nnoremap <leader>tt :term<CR>
 nnoremap <leader>ts :sp \| term<CR>
@@ -286,6 +286,7 @@ function! Start()
 
     " When we go to insert mode start a new buffer, and start insert
     nnoremap <buffer><silent> i :enew <bar> startinsert<CR>
+    nnoremap <buffer><silent> o :execute "e " . getline(".")<CR>
 		nnoremap <buffer><silent> <CR> :execute "cd" . getline(".") "\| Fern ."<CR>
 		nnoremap <buffer><silent> <leader>p :execute "cd" . getline(".") "\| Fzfp"<CR>
 		nnoremap <buffer><silent> <c-s> :execute "source" . getline(".")<CR>
@@ -294,9 +295,10 @@ endfunction
 command! StartScreen call Start()
 autocmd! VimEnter * call Start()
 autocmd! VimResized * call ResizeFZF()
+nnoremap <silent> <leader>ss :call Start()<CR>
 
 function! ResizeFZF()
-	if &columns < 100
+	if &columns < 110
 		let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
 	else
 		let g:fzf_layout = { 'window': { 'width': 0.4, 'height': 0.6 } }
@@ -325,7 +327,7 @@ nnoremap <silent> <c-0> :GuiFont! Cascadia Code:h13<CR>
 function! FloatingWindow()
   let buf = nvim_create_buf(v:true, v:true)
 
-	if &columns < 100
+	if &columns < 110
 		let width = float2nr(&columns * 0.9)
 	else
 		let width = float2nr(&columns * 0.45)
@@ -430,6 +432,8 @@ imap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab
 smap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
 imap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
 smap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+imap <c-k> <S-Tab>
+smap <c-k> <S-Tab>
 
 let g:vsnip_filetypes = {}
 let g:vsnip_filetypes.javascriptreact = ['javascript']
@@ -453,3 +457,4 @@ function! ToggleDiagType()
 endfunction
 
 command! ToggleVirtualText call ToggleDiagType()
+nnoremap <silent> <leader>se :call ToggleDiagType()<CR>

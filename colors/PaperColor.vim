@@ -2242,6 +2242,8 @@ call s:set_color_variables()
 call s:apply_syntax_highlightings()
 
 hi CocInfoFloat guifg=#af5f00
+hi LspDiagnosticsHint guifg=gray
+hi LspDiagnosticsError guifg=indianred
 
 " =============================================================================
 " Cheers!

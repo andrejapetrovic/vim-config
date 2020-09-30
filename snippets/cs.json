@@ -112,11 +112,6 @@
     ],
     "description": "Property and backing field"
   },
-  "#region": {
-    "prefix": "region",
-    "body": ["#region ${1:Name}", "\t$0", "#endregion"],
-    "description": "#region"
-  },
   "svm": {
     "prefix": "svm",
     "body": ["static void Main(string[] args)", "{", "\t$0", "}"],

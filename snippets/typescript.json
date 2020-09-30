@@ -265,20 +265,6 @@
 		],
 		"description": "Set Timeout Function"
 	},
-	"Region Start": {
-		"prefix": "#region",
-		"body": [
-			"//#region $0"
-		],
-		"description": "Folding Region Start"
-	},
-	"Region End": {
-		"prefix": "#endregion",
-		"body": [
-			"//#endregion"
-		],
-		"description": "Folding Region End"
-	},
 	"new Promise": {
 		"prefix": "newpromise",
 		"body": [

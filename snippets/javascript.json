@@ -156,20 +156,6 @@
 		],
 		"description": "Import external module."
 	},
-	"Region Start": {
-		"prefix": "#region",
-		"body": [
-			"//#region $0"
-		],
-		"description": "Folding Region Start"
-	},
-	"Region End": {
-		"prefix": "#endregion",
-		"body": [
-			"//#endregion"
-		],
-		"description": "Folding Region End"
-	},
 	"Log to the console": {
 		"prefix": "log",
 		"body": [
@@ -413,5 +399,19 @@
 	  "prefix": "cte",
 	  "body": "console.timeEnd(${1:object});",
 	  "description": "Sets end point for execution time measurement"
+	},
+	"Closing JSX Tag": {
+		"prefix": "t",
+		"body": [
+			"<${1} />${2}"
+		],
+		"description": "Creates a closing jsx tag"
+	},
+	"JSX Tag": {
+		"prefix": "ta",
+		"body": [
+			"<${1} >${2}</${1}>"
+		],
+		"description": "Creates a jsx tag"
 	}
 }
