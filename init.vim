@@ -16,7 +16,7 @@ call plug#begin('~\AppData\Local\nvim\plugged')
 	Plug 'hrsh7th/vim-vsnip-integ'
 	Plug 'norcalli/nvim-colorizer.lua'
 	Plug 'jiangmiao/auto-pairs'
-	Plug 'iamcco/markdown-preview.nvim', {'do': 'cd app & yarn install', 'for': 'markdown'}
+	Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install', 'for': 'markdown' }
 	Plug 'neoclide/jsonc.vim'
 	Plug 'lambdalisue/fern.vim'
 	Plug 'MaxMEllon/vim-jsx-pretty'
@@ -192,7 +192,7 @@ augroup custom_term
 				\ | norm! a
 augroup END
 
-let g:slime_target = "tmux"
+let g:slime_target = "neovim"
 let g:slime_no_mappings = 1
 xmap <M-r> <Plug>SlimeRegionSend
 nmap <M-r> <Plug>SlimeParagraphSend
@@ -201,7 +201,7 @@ nmap <silent> <M-e> :SlimeSend<CR>
 imap <silent> <M-e> <ESC>:SlimeSend<CR>
 nmap <silent> <M-E> mmggVG:SlimeSend<CR>`m
 nmap <leader>sc <Plug>SlimeConfig
-let g:slime_default_config = {"socket_name": "default", "target_pane": "{last}"}
+" let g:slime_default_config = {"socket_name": "default", "target_pane": "{last}"}
 
 "comments
 autocmd! FileType typescript,c setlocal commentstring=//\ %s
@@ -224,11 +224,11 @@ autocmd! BufNewFile,BufRead *.json,*/waybar/config set filetype=jsonc
 lua require'colorizer'.setup()
 
 "partial sourcing, visual, line, paragraph
-vnoremap <leader>e "sy:@s<CR>
-nnoremap <leader>ee :exe getline(".")<CR>
-nnoremap <leader>ep ms"syip:@s<CR>`s
-nnoremap <leader>ef mmk/^endfunction<CR>V?^function<CR>"sy:@s<CR>`m
-nnoremap <leader>ei :exe getline(".") \| PlugInstall<CR>
+nnoremap <leader>ee :execute getline(".")<CR>
+nnoremap <leader>ep ms"syip`s:@s<CR>
+nnoremap <leader>ef mmk/^endfunction<CR>V?^function<CR>"sy`m:@s<CR>
+nnoremap <leader>ei :execute getline(".") \| PlugInstall<CR>
+vnoremap <leader>e <ESC>:execute join(getline(line("'<"), line("'>")), "\n")<CR>
 
 augroup tab_stop
 	autocmd!
@@ -313,15 +313,6 @@ nmap <silent> <Plug>qfl-prev
 nmap ]q <Plug>qfl-next
 nmap [q <Plug>qfl-prev
 
-function! ResizeFont(num)
-	let l:size = strpart(split(g:GuiFont, ':')[1], 1) + a:num
-	execute "Guifont! Cascadia Code:h" . l:size 
-endfunction
-
-nnoremap <silent> <c-=> :call ResizeFont(1)<CR>
-nnoremap <silent> <c--> :call ResizeFont(-1)<CR>
-nnoremap <silent> <c-0> :GuiFont! Cascadia Code:h13<CR>
-
 " Opens list of buffers in floating window and make mappings for opening buffer
 " in splits
 function! FloatingWindow()
@@ -342,8 +333,10 @@ function! FloatingWindow()
   call nvim_open_win(buf, v:true, opts)
 	call Exec('ls')
 
-	setlocal bufhidden=wipe buftype=nofile nobuflisted noswapfile ignorecase smartcase
-	norm! gg"_djG"_dd
+	setlocal bufhidden=wipe buftype=nofile nobuflisted noswapfile
+				\ ignorecase smartcase cursorline
+	call deletebufline('%', 1, 2)
+	call deletebufline('%', line('.'), line('.'))
 	setlocal nomodifiable nomodified
 
 	nnoremap <buffer><silent> <ESC> :q<CR> 
@@ -366,9 +359,10 @@ endfunction
 function! BuffWinDelete()
 	setlocal modifiable 
 	" execute 'bd ' . split(getline("."), '"')[1]
+	" find a better way to get number at the beggining of the line
 	norm! 0e
 	execute 'bd ' . expand('<cword>')
-	norm! dd
+	call deletebufline('%', line('.'), line('.'))
 	setlocal nomodifiable
 endfunction
 
@@ -428,10 +422,10 @@ imap <expr> <C-j>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-j
 smap <expr> <C-j>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-j>'
 
 " Jump forward or backward
-imap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
-smap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
-imap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
-smap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+imap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)' : '<Tab>'
+smap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)' : '<Tab>'
+imap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)' : '<S-Tab>'
+smap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)' : '<S-Tab>'
 imap <c-k> <S-Tab>
 smap <c-k> <S-Tab>
 
@@ -458,3 +452,4 @@ endfunction
 
 command! ToggleVirtualText call ToggleDiagType()
 nnoremap <silent> <leader>se :call ToggleDiagType()<CR>
+
