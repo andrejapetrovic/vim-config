@@ -413,6 +413,10 @@ set shortmess+=c
 let g:completion_enable_auto_popup = 1
 let g:completion_enable_snippet = 'vim-vsnip'
 
+let g:completion_confirm_key = ""
+imap <expr> <cr>  pumvisible() ? complete_info()["selected"] != "-1" ?
+			\ "\<Plug>(completion_confirm_completion)" : "\<c-e>\<CR>" : "\<CR>"
+
 let g:diagnostic_enable_virtual_text = 1
 let g:diagnostic_auto_popup_while_jump = 0
 
