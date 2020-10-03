@@ -1,4 +1,7 @@
 call plug#begin('~\AppData\Local\nvim\plugged')
+	Plug 'nvim-lua/popup.nvim'
+	Plug 'nvim-lua/plenary.nvim'
+	Plug 'nvim-lua/telescope.nvim'
 	Plug 'neovim/nvim-lspconfig'
 	Plug 'nvim-lua/completion-nvim'
 	Plug 'nvim-lua/diagnostic-nvim'
@@ -119,10 +122,14 @@ nnoremap <leader>; :call setline('.', getline('.') . ';')<CR>
 nnoremap <leader>b gea
 nnoremap <leader>B gEa
 
+command! Telefiles lua require'telescope.builtin'.find_files{find_command = { "rg", "-i", "--hidden", "--files", "-g", "!.git"}}<CR>
+
 " fzf (mostly)
-nnoremap <silent> <leader>p :Fzfp<CR>
+" nnoremap <silent> <leader>p :Fzfp<CR>
+nnoremap <silent> <leader>p :Telefiles<CR>
+nnoremap <silent> <leader>o :lua require'telescope.builtin'.buffers{}<CR> 
 nnoremap <silent> <leader>u :GFiles<CR>
-nnoremap <silent> <leader>o :Buffers<CR>
+" nnoremap <silent> <leader>o :Buffers<CR>
 nnoremap <silent> <leader>i :History<CR>
 nnoremap <silent> <leader>c :Conf<CR>
 nnoremap <silent> <leader>sm :Marks<CR>
@@ -288,7 +295,7 @@ function! Start()
     nnoremap <buffer><silent> i :enew <bar> startinsert<CR>
     nnoremap <buffer><silent> o :execute "e " . getline(".")<CR>
 		nnoremap <buffer><silent> <CR> :execute "cd" . getline(".") "\| Fern ."<CR>
-		nnoremap <buffer><silent> <leader>p :execute "cd" . getline(".") "\| Fzfp"<CR>
+		nnoremap <buffer><silent> <leader>p :execute "cd" . getline(".") "\| bd \| Telefiles"<CR>
 		nnoremap <buffer><silent> <c-s> :execute "source" . getline(".")<CR>
 endfunction
 
@@ -457,3 +464,6 @@ endfunction
 command! ToggleVirtualText call ToggleDiagType()
 nnoremap <silent> <leader>se :call ToggleDiagType()<CR>
 
+let g:python3_host_prog = 'C:\Python38\python.exe'
+
+set wildignore+=*node_modules/**
