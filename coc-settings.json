@@ -1,0 +1,9 @@
+{
+	"suggest.autoTrigger": "always",
+	"suggest.triggerCompletionWait": 100,
+	"suggest.floatEnable": false,
+	"signature.enable": true,
+	"snippets.ultisnips.enable": false,
+	"snippets.snipmate.enable": false,
+	"snippets.textmateSnippetsRoots": ["~/.config/nvim/snippets"]
+}

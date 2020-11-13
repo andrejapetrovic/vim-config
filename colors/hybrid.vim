@@ -451,3 +451,21 @@ let &background = s:style
 " THE SOFTWARE.
 
 " }}}
+"
+
+" Treesitter
+ hi TSTag guifg=#81a2be
+ hi TSTagDelimiter guifg=#f0c674
+ hi TSVariableBuiltin guifg=#cc6666
+ hi TSConstructor guifg=#de935f
+ hi TSPunctBracket guifg=#c5c8c6
+ hi TSVariable guifg=#c5c8c6
+
+hi CocErrorSign guifg=#cc6666
+hi CocErrorFloat guifg=#cc6666
+hi LspDiagnosticsHint guifg=gray
+hi LspDiagnosticsError guifg=indianred
+
+hi Search guibg=#566471 guifg=white
+hi SignColumn guibg=#1d1f21
+hi MatchParen guibg=#566471 guifg=white

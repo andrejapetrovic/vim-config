@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =1
+let g:netrw_dirhist_1='/etc/wireguard'
+let g:netrw_dirhist_0='/home/ap-tp/proj/bloggger/app/controllers'
+let g:netrw_dirhist_9='/home/ap-tp/proj/bloggger/app'
+let g:netrw_dirhist_8='/home/ap-tp/proj/bloggger'
+let g:netrw_dirhist_7='/home/ap-tp/proj/bloggger/spec/mailers'
+let g:netrw_dirhist_6='/home/ap-tp/ruby'
+let g:netrw_dirhist_5='/home/ap-tp/p2/rp/src/components'
+let g:netrw_dirhist_4='/home/ap-tp/p2/rp/src'
+let g:netrw_dirhist_3='/home/ap-tp/p2/rp'
+let g:netrw_dirhist_2='/home/ap-tp/p2/tt/src'

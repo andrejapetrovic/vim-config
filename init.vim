@@ -1,4 +1,4 @@
-call plug#begin('~\AppData\Local\nvim\plugged')
+call plug#begin('~/.config/nvim/plugged')
 	Plug 'nvim-lua/popup.nvim'
 	Plug 'nvim-lua/plenary.nvim'
 	Plug 'nvim-lua/telescope.nvim'
@@ -6,8 +6,6 @@ call plug#begin('~\AppData\Local\nvim\plugged')
 	Plug 'nvim-lua/completion-nvim'
 	Plug 'nvim-lua/diagnostic-nvim'
 	Plug 'airblade/vim-gitgutter'
-	Plug 'junegunn/fzf.vim'
-	Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 	Plug 'junegunn/gv.vim'
 	Plug 'tpope/vim-surround'
 	Plug 'tpope/vim-fugitive'
@@ -18,12 +16,12 @@ call plug#begin('~\AppData\Local\nvim\plugged')
 	Plug 'hrsh7th/vim-vsnip'
 	Plug 'hrsh7th/vim-vsnip-integ'
 	Plug 'norcalli/nvim-colorizer.lua'
-	Plug 'jiangmiao/auto-pairs'
-	Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install', 'for': 'markdown' }
+	Plug 'Townk/vim-autoclose'
 	Plug 'neoclide/jsonc.vim'
 	Plug 'lambdalisue/fern.vim'
-	Plug 'MaxMEllon/vim-jsx-pretty'
-	Plug 'yuezk/vim-js'
+	Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install'  }
+	Plug 'nvim-treesitter/nvim-treesitter'
+	Plug 'nvim-treesitter/nvim-treesitter-refactor'
 call plug#end()
 
 set mouse=a
@@ -37,7 +35,7 @@ set inccommand=nosplit
 set pumheight=15
 set splitright
 set splitbelow
-set colorcolumn=80
+set colorcolumn=120
 " set textwidth=80
 set tabstop=4
 set shiftwidth=4
@@ -47,8 +45,8 @@ set nobackup
 set nowritebackup
 set hidden
 
-set background=light
-colorscheme PaperColor
+" set background=light
+colorscheme hybrid
 
 map <Space> <Nop>
 let mapleader = " "
@@ -94,25 +92,10 @@ nmap <silent> [Q :cfirs<CR>
 nnoremap <leader>rn *Ncgn
 nnoremap <leader>rN #Ncgn
 
-let g:fzf_buffers_jump = 1
-let g:fzf_layout = { 'window': { 'width': 0.4, 'height': 0.6 } }
-let g:fzf_preview_window = ''
-let g:fzf_action = {
-      \ 'ctrl-s': 'split',
-      \ 'ctrl-v': 'vsplit',
-      \ 'ctrl-t': 'tab split',
-      \ 'ctrl-a': function('s:build_quickfix_list')
-      \ }
-
-command! Fzfp call fzf#run(fzf#wrap({'source': 'rg --follow --files --hidden --glob "!.git/"', 'options': ['--multi']}))
-command! Conf call fzf#run(fzf#wrap({'source': 'rg --follow --ignore-file ~/.cfgignore --files ~/', 'options': ['--multi', '--prompt=Conf> ']}))
-command! OSess call fzf#run({'source': 'ls', 'dir': '~/.sess/', 'sink': 'source', 'options': ['--prompt=OpenSession>']})
-command! OProj call fzf#run({'source': 'ls', 'dir': '~/Projects', 'sink': 'cd', 'options': ['--prompt=OpenProj>']})
-command! RSess call fzf#run({'source': 'ls', 'dir': '~/.local/share/sess', 'sink': '! rm', 'options': ['--multi', '--prompt=RemoveSession>']})
-
 " hotkeys
 nnoremap <c-q> <c-a>
 
+nnoremap gb :ls<CR>:b<Space>
 nnoremap <silent> <c-k> :bnext<CR>
 nnoremap <silent> <c-j> :bprevious<CR>
 nnoremap <leader>d <c-^>
@@ -123,20 +106,15 @@ nnoremap <leader>b gea
 nnoremap <leader>B gEa
 
 command! Telefiles lua require'telescope.builtin'.find_files{find_command = { "rg", "-i", "--hidden", "--files", "-g", "!.git"}}<CR>
+command! Rg lua require'telescope.builtin'.live_grep{}<CR>
 
 " fzf (mostly)
 " nnoremap <silent> <leader>p :Fzfp<CR>
 nnoremap <silent> <leader>p :Telefiles<CR>
 nnoremap <silent> <leader>o :lua require'telescope.builtin'.buffers{}<CR> 
-nnoremap <silent> <leader>u :GFiles<CR>
-" nnoremap <silent> <leader>o :Buffers<CR>
-nnoremap <silent> <leader>i :History<CR>
-nnoremap <silent> <leader>c :Conf<CR>
-nnoremap <silent> <leader>sm :Marks<CR>
+nnoremap <silent> <leader>i :lua require'telescope.builtin'.oldfiles{}<CR> 
+nnoremap <silent> <leader>rG :Rg<CR>
 
-nnoremap <leader>so :OSess<CR>
-nnoremap <leader>sp :OProj<CR>
-nnoremap <leader>sr :RSess<CR>
 " nnoremap <leader>ss :mks! ~/.local/share/sess/
 nnoremap <leader>sa :w<CR>
 nnoremap <leader>sl :w<CR>
@@ -148,11 +126,6 @@ nnoremap <leader>tt :term<CR>
 nnoremap <leader>ts :sp \| term<CR>
 nnoremap <leader>tv :vsp \| term<CR>
 
-" windows
-nnoremap <m-h> <c-w>h
-nnoremap <m-j> <c-w>j
-nnoremap <m-k> <c-w>k
-nnoremap <m-l> <c-w>l
 nnoremap <leader>q <c-w>q
 nnoremap <leader>w <c-w>w
 
@@ -163,12 +136,12 @@ vnoremap <silent> <c-n> :m '>+1<CR>gv=gv
 vnoremap <silent> <c-p> :m '<-2<CR>gv=gv
 
 "terminal
-tnoremap <Esc> <c-\><c-n>
+" tnoremap <Esc> <c-\><c-n>
 tnoremap <c-d> <c-\><c-n>:bd!<CR>
-autocmd! FileType fzf tnoremap <buffer> <esc> <c-q>
+" autocmd! FileType fzf tnoremap <buffer> <esc> <c-q>
 
 " tree
-nnoremap <leader>re :Fern . -drawer -reveal=% -toggle<CR>
+nnoremap <leader>re :Fern . -drawer -reveal=% -toggle -width=41<CR>
 nnoremap <leader>rr :Fern . -reveal=% -opener=edit<CR>
 nnoremap <leader>rj :Fern . -reveal=% -opener=split<CR>
 nnoremap <leader>rk :Fern . -reveal=% -opener=leftabove\ split<CR>
@@ -199,7 +172,7 @@ augroup custom_term
 				\ | norm! a
 augroup END
 
-let g:slime_target = "neovim"
+let g:slime_target = "tmux"
 let g:slime_no_mappings = 1
 xmap <M-r> <Plug>SlimeRegionSend
 nmap <M-r> <Plug>SlimeParagraphSend
@@ -208,10 +181,12 @@ nmap <silent> <M-e> :SlimeSend<CR>
 imap <silent> <M-e> <ESC>:SlimeSend<CR>
 nmap <silent> <M-E> mmggVG:SlimeSend<CR>`m
 nmap <leader>sc <Plug>SlimeConfig
-" let g:slime_default_config = {"socket_name": "default", "target_pane": "{last}"}
+let g:slime_default_config = {"socket_name": "default", "target_pane": "{right-of}"}
 
 "comments
 autocmd! FileType typescript,c setlocal commentstring=//\ %s
+autocmd! FileType javascript setlocal commentstring={/*\ %s\ */}
+" autocmd! FileType javascript setlocal commentstring=//\ %s
 
 "git
 nmap <leader>gg :G<CR>
@@ -223,7 +198,7 @@ set statusline =\ %f\ \ [%p%%]\ \ %L%=%{fugitive#statusline()}\ [%(%l,%c%V%)]
 
 autocmd! BufNewFile,BufRead *.json,*/waybar/config set filetype=jsonc
 
-" lua require'trees'
+lua require'trees'
 " set foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
 
 "Color preview
@@ -239,78 +214,61 @@ vnoremap <leader>e <ESC>:execute join(getline(line("'<"), line("'>")), "\n")<CR>
 
 augroup tab_stop
 	autocmd!
-	autocmd Filetype html,vim,css,xml,yaml,markdown,javascript
+	autocmd Filetype html,vim,css,xml,yaml,markdown,javascript,typescript
 				\ setlocal tabstop=2 
 				\ | setlocal shiftwidth=2
 augroup end
 
+autocmd! Filetype vim nnoremap <silent><buffer> K :norm! K<CR>
+
 command! Ini :e $MYVIMRC
 cabbrev ini Ini
 
-"Treesitter slow loading time, load on command
-" function! LoadTS()
-" 	Plug 'nvim-treesitter/nvim-treesitter'
-" 	call plug#load('nvim-treesitter')
-" 	" lua require'trees'
-" 	lua vim.treesitter.TSHighlighter.hl_map["variable.builtin"] = "TSVariableBuiltin"
-" 	TSBufEnable highlight
-" 	TSBufEnable incremental_selection
-" 	TSBufEnable refactor.smart_rename
-" 	TSBufEnable refactor.highlight_definitions
-" 	TSBufEnable refactor.navigation
-" endfunction
-" autocmd! Filetype javascript,typescript,python,c,cpp,java call LoadTS()
-
-" command! TS :call LoadTS()<CR>
-" nnoremap <silent> <leader>rt :call LoadTS()<CR>
-"
-
-let g:AutoPairsShortcutFastWrap = '<M-w>'
 let g:fern#default_hidden = 1
 
-function! Start()
-    " Don't run if: we have commandline arguments, we don't have an empty
-    " buffer, if we've not invoked as vim or gvim, or if we'e start in insert mode
-    if argc()
-        return
-    endif
-
-    " Start a new buffer ...
-    enew
-		-1r ~\AppData\Local\nvim\paths.txt
-
-    setlocal
-        \ bufhidden=wipe
-        \ buftype=nofile
-        \ nobuflisted
-        \ nocursorcolumn
-        \ nocursorline
-        \ nolist
-        \ noswapfile
-
-    " No modifications to this buffer
-    setlocal nomodifiable nomodified
-
-    " When we go to insert mode start a new buffer, and start insert
-    nnoremap <buffer><silent> i :enew <bar> startinsert<CR>
-    nnoremap <buffer><silent> o :execute "e " . getline(".")<CR>
-		nnoremap <buffer><silent> <CR> :execute "cd" . getline(".") "\| Fern ."<CR>
-		nnoremap <buffer><silent> <leader>p :execute "cd" . getline(".") "\| bd \| Telefiles"<CR>
-		nnoremap <buffer><silent> <c-s> :execute "source" . getline(".")<CR>
-endfunction
-
-command! StartScreen call Start()
-autocmd! VimEnter * call Start()
-autocmd! VimResized * call ResizeFZF()
-nnoremap <silent> <leader>ss :call Start()<CR>
-
-function! ResizeFZF()
-	if &columns < 110
-		let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
-	else
-		let g:fzf_layout = { 'window': { 'width': 0.4, 'height': 0.6 } }
-	endif
-endfunction
+" function! Start()
+"     " Don't run if: we have commandline arguments, we don't have an empty
+"     " buffer, if we've not invoked as vim or gvim, or if we'e start in insert mode
+"     if argc()
+"         return
+"     endif
+" 
+"     " Start a new buffer ...
+"     enew
+" 		-1r ~\AppData\Local\nvim\paths.txt
+" 
+"     setlocal
+"         \ bufhidden=wipe
+"         \ buftype=nofile
+"         \ nobuflisted
+"         \ nocursorcolumn
+"         \ nocursorline
+"         \ nolist
+"         \ noswapfile
+" 
+"     " No modifications to this buffer
+"     setlocal nomodifiable nomodified
+" 
+"     " When we go to insert mode start a new buffer, and start insert
+"     nnoremap <buffer><silent> i :enew <bar> startinsert<CR>
+"     nnoremap <buffer><silent> o :execute "e " . getline(".")<CR>
+" 		nnoremap <buffer><silent> <CR> :execute "cd" . getline(".") "\| Fern ."<CR>
+" 		nnoremap <buffer><silent> <leader>p :execute "cd" . getline(".") "\| bd \| Telefiles"<CR>
+" 		nnoremap <buffer><silent> <c-s> :execute "source" . getline(".")<CR>
+" endfunction
+" 
+" command! StartScreen call Start()
+" autocmd! VimEnter * call Start()
+" autocmd! VimResized * call ResizeFZF()
+" nnoremap <silent> <leader>ss :call Start()<CR>
+" 
+" function! ResizeFZF()
+" 	if &columns < 110
+" 		let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
+" 	else
+" 		let g:fzf_layout = { 'window': { 'width': 0.4, 'height': 0.6 } }
+" 	endif
+" endfunction
 
 
 nmap <silent> <Plug>qfl-next 
@@ -384,6 +342,9 @@ endfunction!
 
 nnoremap <leader>l :call FloatingWindow()<CR>
 
+set wildignore+=*node_modules/**,*bin/**,*build/**,*obj**
+
+
 lua << EOF
 local lsp = require('nvim_lsp')
 
@@ -391,34 +352,39 @@ local attach = function()
 	require'completion'.on_attach()
 	require'diagnostic'.on_attach()
 end
-
 lsp.tsserver.setup {
 	on_attach=attach,
 }
 lsp.omnisharp.setup {
 	on_attach=attach,
 }
+lsp.solargraph.setup {
+	on_attach=attach,
+}
 EOF
 
 nnoremap <silent> <leader>aD 	<cmd>lua vim.lsp.buf.declaration()<CR>
 nnoremap <silent> <leader>ad 	<cmd>lua vim.lsp.buf.definition()<CR>
-nnoremap <silent> <leader>k 	<cmd>lua vim.lsp.buf.hover()<CR>
+nnoremap <silent> K <cmd>lua vim.lsp.buf.hover()<CR>
 nnoremap <silent> <leader>ai  <cmd>lua vim.lsp.buf.implementation()<CR>
 nnoremap <silent> <leader>j 	<cmd>lua vim.lsp.buf.signature_help()<CR>
 nnoremap <silent> <leader>at  <cmd>lua vim.lsp.buf.type_definition()<CR>
 nnoremap <silent> <leader>ar  <cmd>lua vim.lsp.buf.references()<CR>
 nnoremap <silent> <leader>as  <cmd>lua vim.lsp.buf.document_symbol()<CR>
 nnoremap <silent> <leader>aw  <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
-nnoremap <silent> <leader>af 	<cmd>lua vim.lsp.buf.formatting()<CR>
+nnoremap <silent> <leader>f 	<cmd>lua vim.lsp.buf.formatting()<CR>
 nnoremap <silent> <leader>aa 	<cmd>lua vim.lsp.buf.code_action()<CR>
+nnoremap <silent> <leader>. 	<cmd>lua vim.lsp.buf.code_action()<CR>
 nnoremap <silent> <leader>rm 	<cmd>lua vim.lsp.buf.rename()<CR>
-nnoremap <silent> <leader>ak 	<cmd>lua vim.lsp.util.show_line_diagnostics()<CR>
+nnoremap <silent> <leader>k 	<cmd>lua vim.lsp.util.show_line_diagnostics()<CR>
 
 set completeopt=menuone,noinsert
 set shortmess+=c
 
-let g:completion_enable_auto_popup = 1
+let g:completion_enable_auto_popup = 0
+let g:completion_enable_auto_signature = 0
 let g:completion_enable_snippet = 'vim-vsnip'
+let g:completion_timer_cycle = 500
 
 let g:completion_confirm_key = ""
 imap <expr> <cr>  pumvisible() ? complete_info()["selected"] != "-1" ?
@@ -427,7 +393,7 @@ imap <expr> <cr>  pumvisible() ? complete_info()["selected"] != "-1" ?
 let g:diagnostic_enable_virtual_text = 1
 let g:diagnostic_auto_popup_while_jump = 0
 
-let g:vsnip_snippet_dir='~\\AppData\\Local\\nvim\\snippets\'
+let g:vsnip_snippet_dir='~/.config/nvim/snippets/'
 
 imap <expr> <C-j>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-j>'
 smap <expr> <C-j>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-j>'
@@ -464,6 +430,34 @@ endfunction
 command! ToggleVirtualText call ToggleDiagType()
 nnoremap <silent> <leader>se :call ToggleDiagType()<CR>
 
-let g:python3_host_prog = 'C:\Python38\python.exe'
+set laststatus=0
 
-set wildignore+=*node_modules/**
+function! ToggleStatus()
+	if (&laststatus == 0)
+		set laststatus=2
+	else
+		set laststatus=0
+	endif
+endfunction
+
+command! ToggleStatus call ToggleStatus()
+
+nnoremap yp Vpyy
+
+if exists('$TMUX')
+    autocmd BufEnter * call system("tmux rename-window '" . expand("%:t") . "'")
+    autocmd VimLeave * call system("tmux setw automatic-rename")
+endif
+
+" Ruby
+function! Model2ctrl()
+	let b:current = expand('%:t')
+	let b:current = b:current[0:len(b:current) - 4]
+	let b:full = expand('%:p')
+	let b:splitted = split(b:full, '/')
+	let b:joined = b:splitted[len(b:splitted) - 3] . '/controllers/' . b:current . 's_controller.rb'
+	exe "edit" b:joined
+endfunction
+command! Rc call Model2ctrl()
+
+
