@@ -109,13 +109,16 @@ nnoremap <leader>B gEa
 let g:fzf_preview_window = []
 let g:fzf_layout = { 'window': { 'width': 0.5, 'height': 0.7 } }
 let g:rg_files_opts = 'rg --follow --files --hidden -g !.git '
+
 command! Fzfp call fzf#run(fzf#wrap({'source': g:rg_files_opts, 'options': ['--multi']}))
 command! Fzfc call fzf#run(fzf#wrap({'source': g:rg_files_opts . expand('%:h:r'), 'options': ['--multi']}))
 command! -bang -nargs=* Rg
   \ call fzf#vim#grep(
   \   'rg --column --line-number --no-heading --color=always --smart-case -- ' . shellescape(<q-args>), 1,
   \   fzf#vim#with_preview(), <bang>1)
+
 autocmd! VimResized,VimEnter * call ResizeFZF()
+
 function! ResizeFZF()
 	if &columns < 110
 		let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.7 } }
