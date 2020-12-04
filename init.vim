@@ -19,8 +19,8 @@ call plug#begin('~/.config/nvim/plugged')
 	Plug 'neoclide/jsonc.vim'
 	Plug 'lambdalisue/fern.vim'
 	Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install'  }
-	Plug 'nvim-treesitter/nvim-treesitter'
-	Plug 'nvim-treesitter/nvim-treesitter-refactor'
+	Plug 'nvim-treesitter/nvim-treesitter', { 'branch': '3160a19de3' }
+	Plug 'nvim-treesitter/nvim-treesitter-refactor', { 'branch': '9d4b9daf2f' }
 	Plug 'ludovicchabant/vim-gutentags'
 call plug#end()
 
@@ -57,7 +57,6 @@ cabbrev Wq wq
 
 " autocmd! VimLeave * set guicursor=a:ver25-blinkon0
 
-" netrw
 let g:netrw_liststyle = 3
 let g:netrw_banner = 0
 let g:netrw_cursor = 0
@@ -84,9 +83,8 @@ augroup END
 "change :grep to rg
 set grepprg=rg\ --vimgrep\ --block-buffered
 set grepformat^=%f:%l:%c:%m
-"grep for word under cursor
 nnoremap <leader>rw :silent grep! "\b<C-R><C-W>\b"<CR>:copen<CR><CR>
-nnoremap <leader>rg :silent grep
+nnoremap <leader>rg :silent grep 
 nmap <silent> ]q :cnext<CR>
 nmap <silent> [q :cprev<CR>
 nmap <silent> ]Q :clast<CR>
@@ -110,9 +108,14 @@ nnoremap <leader>B gEa
 
 let g:fzf_preview_window = []
 let g:fzf_layout = { 'window': { 'width': 0.5, 'height': 0.7 } }
-command! Fzfp call fzf#run(fzf#wrap({'source': 'rg --follow --files --hidden -g !.git', 'options': ['--multi']}))
-command! Fzfc call fzf#run(fzf#wrap({'source': 'rg --follow --files --hidden -g !.git ' . expand('%:h:r'), 'options': ['--multi']}))
-autocmd! VimResized * call ResizeFZF()
+let g:rg_files_opts = 'rg --follow --files --hidden -g !.git '
+command! Fzfp call fzf#run(fzf#wrap({'source': g:rg_files_opts, 'options': ['--multi']}))
+command! Fzfc call fzf#run(fzf#wrap({'source': g:rg_files_opts . expand('%:h:r'), 'options': ['--multi']}))
+command! -bang -nargs=* Rg
+  \ call fzf#vim#grep(
+  \   'rg --column --line-number --no-heading --color=always --smart-case -- ' . shellescape(<q-args>), 1,
+  \   fzf#vim#with_preview(), <bang>1)
+autocmd! VimResized,VimEnter * call ResizeFZF()
 function! ResizeFZF()
 	if &columns < 110
 		let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.7 } }
@@ -125,7 +128,6 @@ nnoremap <silent> <leader>p :Fzfp<CR>
 nnoremap <silent> <leader>i :Fzfc<CR>
 nnoremap <silent> <leader>o :Buffers<CR>
 nnoremap <silent> <leader>u :History<CR>
-nnoremap <silent> <leader>rG :Rg<CR>
 
 nnoremap <leader>sa :w<CR>
 nnoremap <leader>sl :w<CR>
@@ -227,7 +229,7 @@ augroup tab_stop
 	autocmd Filetype html,vim,css,xml,yaml,markdown,javascript,typescript
 				\ setlocal tabstop=2
 				\ | setlocal shiftwidth=2
-augroup end
+augroup END
 
 autocmd! Filetype vim nnoremap <silent><buffer> K :norm! K<CR>
 
@@ -282,7 +284,6 @@ endfunction
 
 function! BuffWinDelete()
 	setlocal modifiable
-	" execute 'bd ' . split(getline("."), '"')[1]
 	" find a better way to get number at the beggining of the line
 	norm! 0e
 	execute 'bd ' . expand('<cword>')
@@ -393,8 +394,8 @@ if exists('$TMUX')
     autocmd VimLeave * call system("tmux setw automatic-rename")
 endif
 
-command! Rspec1 :exe "!rspec %:" . line('.')
-command! RspecB :exe "!rspec %"
+command! Rspec1 :exe "!bin/rspec %:" . line('.')
+command! RspecB :exe "!bin/rspec %"
 nnoremap <leader>4 :Rspec1<CR>
 nnoremap <leader>5 :RspecB<CR>
 let g:ruby_indent_access_modifier_style="indent"
@@ -407,6 +408,7 @@ function! Darken()
 	let g:bg_level = g:bg_level + 1
 	call Darker_bg(g:bg_level)
 endfunction
+
 function! Lighten()
 	if g:bg_level < 1
 		let g:bg_level = g:max_bg_level + 1
@@ -414,6 +416,7 @@ function! Lighten()
 	let g:bg_level = g:bg_level - 1
 	call Darker_bg(g:bg_level)
 endfunction
+
 nnoremap <c-up> :call Darken()<CR>
 nnoremap <c-down> :call Lighten()<CR>
 inoremap <c-up> <esc>:call Darken()<CR>
