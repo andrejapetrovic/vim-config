@@ -91,12 +91,13 @@ if exists("g:hybrid_reduced_contrast") && g:hybrid_reduced_contrast == 1
   let s:gui_comment    = "#6c7a80"
 else
   let s:gui_background = "#1d1f21"
+  let s:gui_background2 = "#0c0e10"
   let s:gui_selection  = "#373b41"
   let s:gui_line       = "#282a2e"
   let s:gui_comment    = "#707880"
 endif
 
-let s:palette.gui.background = { 'dark' : s:gui_background , 'light' : "#e4e4e4" }
+let s:palette.gui.background = { 'dark' : s:gui_background2, 'light' : "#e4e4e4" }
 let s:palette.gui.foreground = { 'dark' : "#c5c8c6"        , 'light' : "#000000" }
 let s:palette.gui.selection  = { 'dark' : s:gui_selection  , 'light' : "#bcbcbc" }
 let s:palette.gui.line       = { 'dark' : s:gui_line       , 'light' : "#d0d0d0" }
@@ -469,3 +470,17 @@ hi LspDiagnosticsError guifg=indianred
 hi Search guibg=#566471 guifg=white
 hi SignColumn guibg=#1d1f21
 hi MatchParen guibg=#566471 guifg=white
+
+hi TelescopeMatching guifg=#8abeb7
+
+let g:max_bg_level = 2
+function! Darker_bg(level)
+	if a:level == 0
+		exe "hi Normal guibg=" . s:gui_background
+	elseif a:level == 1
+		exe "hi Normal guibg=" . s:gui_background2
+	else
+		hi Normal guibg=Black
+	endif
+endfunction
+

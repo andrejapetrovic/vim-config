@@ -22,6 +22,7 @@ call plug#begin('~/.config/nvim/plugged')
 	Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install'  }
 	Plug 'nvim-treesitter/nvim-treesitter'
 	Plug 'nvim-treesitter/nvim-treesitter-refactor'
+	Plug 'ludovicchabant/vim-gutentags'
 call plug#end()
 
 set mouse=a
@@ -65,6 +66,10 @@ let g:netrw_bufsettings = 'noma nomod nu nobl nowrap ro'
 let g:netrw_winsize = 20
 let g:netrw_preview = 1
 
+function! RemoveTrailingWS()
+	:%s/\s\+$//e
+endfunction
+
 function! s:build_quickfix_list(lines)
 	call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
 	copen
@@ -82,17 +87,16 @@ set grepprg=rg\ --vimgrep\ --block-buffered
 set grepformat^=%f:%l:%c:%m
 "grep for word under cursor
 nnoremap <leader>rw :silent grep! "\b<C-R><C-W>\b"<CR>:copen<CR><CR>
-nnoremap <leader>rg :silent grep 
+nnoremap <leader>rg :silent grep
 nmap <silent> ]q :cnext<CR>
 nmap <silent> [q :cprev<CR>
 nmap <silent> ]Q :clast<CR>
 nmap <silent> [Q :cfirs<CR>
 
-" rename ward + repeat for next with dot
+" rename word + repeat for next with dot
 nnoremap <leader>rn *Ncgn
 nnoremap <leader>rN #Ncgn
 
-" hotkeys
 nnoremap <c-q> <c-a>
 
 nnoremap gb :ls<CR>:b<Space>
@@ -106,21 +110,19 @@ nnoremap <leader>b gea
 nnoremap <leader>B gEa
 
 command! Telefiles lua require'telescope.builtin'.find_files{find_command = { "rg", "-i", "--hidden", "--files", "-g", "!.git"}}<CR>
+command! TelefilesCurrent :exe "lua require'telescope.builtin'.find_files{find_command = { 'rg', '-i', '--hidden', '--files', '-g', '!.git', '" . expand('%:h:r') . "'}}"
 command! Rg lua require'telescope.builtin'.live_grep{}<CR>
 
-" fzf (mostly)
-" nnoremap <silent> <leader>p :Fzfp<CR>
 nnoremap <silent> <leader>p :Telefiles<CR>
-nnoremap <silent> <leader>o :lua require'telescope.builtin'.buffers{}<CR> 
-nnoremap <silent> <leader>i :lua require'telescope.builtin'.oldfiles{}<CR> 
+nnoremap <silent> <leader>i :TelefilesCurrent<CR>
+nnoremap <silent> <leader>o :lua require'telescope.builtin'.buffers{}<CR>
+nnoremap <silent> <leader>u :lua require'telescope.builtin'.oldfiles{}<CR>
 nnoremap <silent> <leader>rG :Rg<CR>
 
-" nnoremap <leader>ss :mks! ~/.local/share/sess/
 nnoremap <leader>sa :w<CR>
 nnoremap <leader>sl :w<CR>
 nnoremap <leader>sq :wq<CR>
 nnoremap <leader>sd :cd %:p:h<CR>
-" nnoremap <leader>se :Lex<CR>
 nnoremap <leader>st :%s/\s\+$//e<CR>
 nnoremap <leader>tt :term<CR>
 nnoremap <leader>ts :sp \| term<CR>
@@ -142,6 +144,7 @@ tnoremap <c-d> <c-\><c-n>:bd!<CR>
 
 " tree
 nnoremap <leader>re :Fern . -drawer -reveal=% -toggle -width=41<CR>
+nnoremap <leader>rE :Fern . -drawer -reveal=% -toggle -width=61<CR>
 nnoremap <leader>rr :Fern . -reveal=% -opener=edit<CR>
 nnoremap <leader>rj :Fern . -reveal=% -opener=split<CR>
 nnoremap <leader>rk :Fern . -reveal=% -opener=leftabove\ split<CR>
@@ -151,6 +154,7 @@ nnoremap <leader>rJ :Fern . -reveal=% -opener=botright\ split<CR>
 nnoremap <leader>rK :Fern . -reveal=% -opener=topleft\ split<CR>
 nnoremap <leader>rL :Fern . -reveal=% -opener=botright\ vsplit<CR>
 nnoremap <leader>rH :Fern . -reveal=% -opener=topleft\ vsplit<CR>
+let g:fern#default_hidden = 1
 
 let g:gitgutter_map_keys = 0
 nmap <silent> <leader>gn <Plug>(GitGutterNextHunk) :call repeat#set("\<Plug>(GitGutterNextHunk)")<CR>
@@ -185,8 +189,8 @@ let g:slime_default_config = {"socket_name": "default", "target_pane": "{right-o
 
 "comments
 autocmd! FileType typescript,c setlocal commentstring=//\ %s
-autocmd! FileType javascript setlocal commentstring={/*\ %s\ */}
-" autocmd! FileType javascript setlocal commentstring=//\ %s
+" autocmd! FileType javascript setlocal commentstring={/*\ %s\ */}
+autocmd! FileType javascript setlocal commentstring=//\ %s
 
 "git
 nmap <leader>gg :G<CR>
@@ -201,8 +205,6 @@ autocmd! BufNewFile,BufRead *.json,*/waybar/config set filetype=jsonc
 lua require'trees'
 " set foldmethod=expr foldexpr=nvim_treesitter#foldexpr()
 
-"Color preview
-"Buggy in neovim nightly with treesitter
 lua require'colorizer'.setup()
 
 "partial sourcing, visual, line, paragraph
@@ -215,7 +217,7 @@ vnoremap <leader>e <ESC>:execute join(getline(line("'<"), line("'>")), "\n")<CR>
 augroup tab_stop
 	autocmd!
 	autocmd Filetype html,vim,css,xml,yaml,markdown,javascript,typescript
-				\ setlocal tabstop=2 
+				\ setlocal tabstop=2
 				\ | setlocal shiftwidth=2
 augroup end
 
@@ -224,62 +226,11 @@ autocmd! Filetype vim nnoremap <silent><buffer> K :norm! K<CR>
 command! Ini :e $MYVIMRC
 cabbrev ini Ini
 
-let g:fern#default_hidden = 1
-
-" function! Start()
-"     " Don't run if: we have commandline arguments, we don't have an empty
-"     " buffer, if we've not invoked as vim or gvim, or if we'e start in insert mode
-"     if argc()
-"         return
-"     endif
-" 
-"     " Start a new buffer ...
-"     enew
-" 		-1r ~\AppData\Local\nvim\paths.txt
-" 
-"     setlocal
-"         \ bufhidden=wipe
-"         \ buftype=nofile
-"         \ nobuflisted
-"         \ nocursorcolumn
-"         \ nocursorline
-"         \ nolist
-"         \ noswapfile
-" 
-"     " No modifications to this buffer
-"     setlocal nomodifiable nomodified
-" 
-"     " When we go to insert mode start a new buffer, and start insert
-"     nnoremap <buffer><silent> i :enew <bar> startinsert<CR>
-"     nnoremap <buffer><silent> o :execute "e " . getline(".")<CR>
-" 		nnoremap <buffer><silent> <CR> :execute "cd" . getline(".") "\| Fern ."<CR>
-" 		nnoremap <buffer><silent> <leader>p :execute "cd" . getline(".") "\| bd \| Telefiles"<CR>
-" 		nnoremap <buffer><silent> <c-s> :execute "source" . getline(".")<CR>
-" endfunction
-" 
-" command! StartScreen call Start()
-" autocmd! VimEnter * call Start()
-" autocmd! VimResized * call ResizeFZF()
-" nnoremap <silent> <leader>ss :call Start()<CR>
-" 
-" function! ResizeFZF()
-" 	if &columns < 110
-" 		let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
-" 	else
-" 		let g:fzf_layout = { 'window': { 'width': 0.4, 'height': 0.6 } }
-" 	endif
-" endfunction
-
-
-nmap <silent> <Plug>qfl-next 
-			\ :cnext \| call repeat#set("\<Plug>qfl-next")<CR>
-nmap <silent> <Plug>qfl-prev
-			\ :cprevious \| call repeat#set("\<Plug>qfl-prev")<CR>
+nmap <silent> <Plug>qfl-next :cnext \| call repeat#set("\<Plug>qfl-next")<CR>
+nmap <silent> <Plug>qfl-prev :cprevious \| call repeat#set("\<Plug>qfl-prev")<CR>
 nmap ]q <Plug>qfl-next
 nmap [q <Plug>qfl-prev
 
-" Opens list of buffers in floating window and make mappings for opening buffer
-" in splits
 function! FloatingWindow()
   let buf = nvim_create_buf(v:true, v:true)
 
@@ -304,7 +255,7 @@ function! FloatingWindow()
 	call deletebufline('%', line('.'), line('.'))
 	setlocal nomodifiable nomodified
 
-	nnoremap <buffer><silent> <ESC> :q<CR> 
+	nnoremap <buffer><silent> <ESC> :q<CR>
 	nnoremap <buffer> s /
 	nnoremap <buffer><silent> <CR> :call BuffSplit(getline("."), 'e')<CR>
 	nnoremap <buffer><silent> l :call BuffSplit(getline("."), 'e')<CR>
@@ -322,7 +273,7 @@ function! BuffSplit(line, split_name)
 endfunction
 
 function! BuffWinDelete()
-	setlocal modifiable 
+	setlocal modifiable
 	" execute 'bd ' . split(getline("."), '"')[1]
 	" find a better way to get number at the beggining of the line
 	norm! 0e
@@ -344,24 +295,7 @@ nnoremap <leader>l :call FloatingWindow()<CR>
 
 set wildignore+=*node_modules/**,*bin/**,*build/**,*obj**
 
-
-lua << EOF
-local lsp = require('nvim_lsp')
-
-local attach = function()
-	require'completion'.on_attach()
-	require'diagnostic'.on_attach()
-end
-lsp.tsserver.setup {
-	on_attach=attach,
-}
-lsp.omnisharp.setup {
-	on_attach=attach,
-}
-lsp.solargraph.setup {
-	on_attach=attach,
-}
-EOF
+lua require'lsp_compl'
 
 nnoremap <silent> <leader>aD 	<cmd>lua vim.lsp.buf.declaration()<CR>
 nnoremap <silent> <leader>ad 	<cmd>lua vim.lsp.buf.definition()<CR>
@@ -409,6 +343,7 @@ smap <c-k> <S-Tab>
 let g:vsnip_filetypes = {}
 let g:vsnip_filetypes.javascriptreact = ['javascript']
 let g:vsnip_filetypes.typescriptreact = ['typescript']
+let g:vsnip_filetypes.eruby = ['html']
 
 imap <silent> <c-space> <Plug>(completion_trigger)
 
@@ -441,6 +376,7 @@ function! ToggleStatus()
 endfunction
 
 command! ToggleStatus call ToggleStatus()
+nnoremap <silent> <leader>gt :ToggleStatus<CR>
 
 nnoremap yp Vpyy
 
@@ -449,15 +385,26 @@ if exists('$TMUX')
     autocmd VimLeave * call system("tmux setw automatic-rename")
 endif
 
-" Ruby
-function! Model2ctrl()
-	let b:current = expand('%:t')
-	let b:current = b:current[0:len(b:current) - 4]
-	let b:full = expand('%:p')
-	let b:splitted = split(b:full, '/')
-	let b:joined = b:splitted[len(b:splitted) - 3] . '/controllers/' . b:current . 's_controller.rb'
-	exe "edit" b:joined
+command! Rspec1 :exe "!rspec %:" . line('.')
+command! RspecB :exe "!rspec %"
+nnoremap <leader>4 :Rspec1<CR>
+nnoremap <leader>5 :RspecB<CR>
+let g:ruby_indent_access_modifier_style="indent"
+
+let g:bg_level = 1
+function! Darken()
+	if g:bg_level == g:max_bg_level
+		let g:bg_level = -1
+	endif
+	let g:bg_level = g:bg_level + 1
+	call Darker_bg(g:bg_level)
 endfunction
-command! Rc call Model2ctrl()
-
-
+function! Lighten()
+	if g:bg_level < 1
+		let g:bg_level = g:max_bg_level + 1
+	endif
+	let g:bg_level = g:bg_level - 1
+	call Darker_bg(g:bg_level)
+endfunction
+nnoremap <c-up> :call Darken()<CR>
+nnoremap <c-down> :call Lighten()<CR>
