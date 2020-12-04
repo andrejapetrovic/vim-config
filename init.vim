@@ -1,7 +1,6 @@
 call plug#begin('~/.config/nvim/plugged')
-	Plug 'nvim-lua/popup.nvim'
-	Plug 'nvim-lua/plenary.nvim'
-	Plug 'nvim-lua/telescope.nvim'
+	Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+	Plug 'junegunn/fzf.vim'
 	Plug 'neovim/nvim-lspconfig'
 	Plug 'nvim-lua/completion-nvim'
 	Plug 'nvim-lua/diagnostic-nvim'
@@ -109,14 +108,23 @@ nnoremap <leader>; :call setline('.', getline('.') . ';')<CR>
 nnoremap <leader>b gea
 nnoremap <leader>B gEa
 
-command! Telefiles lua require'telescope.builtin'.find_files{find_command = { "rg", "-i", "--hidden", "--files", "-g", "!.git"}}<CR>
-command! TelefilesCurrent :exe "lua require'telescope.builtin'.find_files{find_command = { 'rg', '-i', '--hidden', '--files', '-g', '!.git', '" . expand('%:h:r') . "'}}"
-command! Rg lua require'telescope.builtin'.live_grep{}<CR>
+let g:fzf_preview_window = []
+let g:fzf_layout = { 'window': { 'width': 0.5, 'height': 0.7 } }
+command! Fzfp call fzf#run(fzf#wrap({'source': 'rg --follow --files --hidden -g !.git', 'options': ['--multi']}))
+command! Fzfc call fzf#run(fzf#wrap({'source': 'rg --follow --files --hidden -g !.git ' . expand('%:h:r'), 'options': ['--multi']}))
+autocmd! VimResized * call ResizeFZF()
+function! ResizeFZF()
+	if &columns < 110
+		let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.7 } }
+	else
+		let g:fzf_layout = { 'window': { 'width': 0.5, 'height': 0.7 } }
+	endif
+endfunction
 
-nnoremap <silent> <leader>p :Telefiles<CR>
-nnoremap <silent> <leader>i :TelefilesCurrent<CR>
-nnoremap <silent> <leader>o :lua require'telescope.builtin'.buffers{}<CR>
-nnoremap <silent> <leader>u :lua require'telescope.builtin'.oldfiles{}<CR>
+nnoremap <silent> <leader>p :Fzfp<CR>
+nnoremap <silent> <leader>i :Fzfc<CR>
+nnoremap <silent> <leader>o :Buffers<CR>
+nnoremap <silent> <leader>u :History<CR>
 nnoremap <silent> <leader>rG :Rg<CR>
 
 nnoremap <leader>sa :w<CR>
@@ -140,7 +148,7 @@ vnoremap <silent> <c-p> :m '<-2<CR>gv=gv
 "terminal
 " tnoremap <Esc> <c-\><c-n>
 tnoremap <c-d> <c-\><c-n>:bd!<CR>
-" autocmd! FileType fzf tnoremap <buffer> <esc> <c-q>
+autocmd! FileType fzf tnoremap <buffer> <esc> <c-q>
 
 " tree
 nnoremap <leader>re :Fern . -drawer -reveal=% -toggle -width=41<CR>
@@ -408,3 +416,6 @@ function! Lighten()
 endfunction
 nnoremap <c-up> :call Darken()<CR>
 nnoremap <c-down> :call Lighten()<CR>
+inoremap <c-up> <esc>:call Darken()<CR>
+inoremap <c-down> <esc>:call Lighten()<CR>
+

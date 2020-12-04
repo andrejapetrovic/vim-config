@@ -299,7 +299,7 @@ exe "hi! ErrorMsg"      .s:fg_background  .s:bg_red         .s:fmt_stnd
 exe "hi! VertSplit"     .s:fg_window      .s:bg_none        .s:fmt_none
 exe "hi! Folded"        .s:fg_comment     .s:bg_darkcolumn  .s:fmt_none
 exe "hi! FoldColumn"    .s:fg_none        .s:bg_darkcolumn  .s:fmt_none
-exe "hi! SignColumn"    .s:fg_none        .s:bg_darkcolumn  .s:fmt_none
+exe "hi! SignColumn"    .s:fg_none        .s:bg_background  .s:fmt_none
 "   Incsearch"
 exe "hi! LineNr"        .s:fg_selection   .s:bg_none        .s:fmt_none
 exe "hi! CursorLineNr"  .s:fg_yellow      .s:bg_none        .s:fmt_none
@@ -468,7 +468,6 @@ hi LspDiagnosticsHint guifg=gray
 hi LspDiagnosticsError guifg=indianred
 
 hi Search guibg=#566471 guifg=white
-hi SignColumn guibg=#1d1f21
 hi MatchParen guibg=#566471 guifg=white
 
 hi TelescopeMatching guifg=#8abeb7
@@ -477,10 +476,13 @@ let g:max_bg_level = 2
 function! Darker_bg(level)
 	if a:level == 0
 		exe "hi Normal guibg=" . s:gui_background
+		exe "hi SignColumn guibg=" . s:gui_background
 	elseif a:level == 1
 		exe "hi Normal guibg=" . s:gui_background2
+		exe "hi SignColumn guibg=" . s:gui_background2
 	else
 		hi Normal guibg=Black
+		hi SignColumn guibg=Black
 	endif
 endfunction
 
