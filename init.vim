@@ -11,7 +11,6 @@ call plug#begin('~/.config/nvim/plugged')
 	Plug 'tpope/vim-commentary'
 	Plug 'tpope/vim-repeat'
 	Plug 'tpope/vim-eunuch'
-	Plug 'jpalardy/vim-slime'
 	Plug 'hrsh7th/vim-vsnip'
 	Plug 'hrsh7th/vim-vsnip-integ'
 	Plug 'norcalli/nvim-colorizer.lua'
@@ -189,17 +188,6 @@ augroup custom_term
 				\ | norm! a
 augroup END
 
-let g:slime_target = "tmux"
-let g:slime_no_mappings = 1
-xmap <M-r> <Plug>SlimeRegionSend
-nmap <M-r> <Plug>SlimeParagraphSend
-imap <M-r> <ESC><Plug>SlimeParagraphSend
-nmap <silent> <M-e> :SlimeSend<CR>
-imap <silent> <M-e> <ESC>:SlimeSend<CR>
-nmap <silent> <M-E> mmggVG:SlimeSend<CR>`m
-nmap <leader>sc <Plug>SlimeConfig
-let g:slime_default_config = {"socket_name": "default", "target_pane": "{right-of}"}
-
 "comments
 autocmd! FileType typescript,c setlocal commentstring=//\ %s
 " autocmd! FileType javascript setlocal commentstring={/*\ %s\ */}
@@ -221,11 +209,11 @@ lua require'trees'
 lua require'colorizer'.setup()
 
 "partial sourcing, visual, line, paragraph
-nnoremap <leader>ee :execute getline(".")<CR>
-nnoremap <leader>ep ms"syip`s:@s<CR>
+nnoremap <leader>ee :exe getline(".")<CR>
+nnoremap <leader>ep <ESC>:exe join(GetParagraph(), "\n")<CR>
 nnoremap <leader>ef mmk/^endfunction<CR>V?^function<CR>"sy`m:@s<CR>
-nnoremap <leader>ei :execute getline(".") \| PlugInstall<CR>
-vnoremap <leader>e <ESC>:execute join(getline(line("'<"), line("'>")), "\n")<CR>
+nnoremap <leader>ei :exe getline(".") \| PlugInstall<CR>
+vnoremap <silent> <leader>e <ESC>:<C-U>exe join(GetVisual(), "\n")<CR>
 
 augroup tab_stop
 	autocmd!
@@ -424,4 +412,40 @@ nnoremap <c-up> :call Darken()<CR>
 nnoremap <c-down> :call Lighten()<CR>
 inoremap <c-up> <esc>:call Darken()<CR>
 inoremap <c-down> <esc>:call Lighten()<CR>
+
+let g:tmux_target_pane = "{right-of}"
+function! TmuxSendLine(line)
+	exe "silent !tmux send-keys -t " . g:tmux_target_pane . " " . shellescape(a:line, 1) . "\r"
+endfunction
+
+function! TmuxSend(region)
+	call TmuxSendLine(join(a:region, "\r"))
+endfunction
+
+nnoremap <silent> <M-e> :call TmuxSendLine(getline("."))<CR>
+nnoremap <silent> <M-r> :call TmuxSend(GetParagraph())<CR>
+vnoremap <silent> <M-e> :<C-U>call TmuxSend(GetVisual())<CR>
+
+command! -nargs=1 -complete=custom,TmuxTargets TargetPane :let g:tmux_target_pane=<f-args>
+
+function! TmuxTargets(A,L,P)
+	return "{right-of}\n{left-of}\n{down-of}\n{up-of}\n{last}\n{next}\n{previous}\n{top}\n{bottom}\n{left}\n{right}\
+				\n{top-left}\n{top-right}\n{bottom-left}\n{bottom-right}"
+endfunction
+
+function! GetParagraph()
+	let l:first = line("'{")
+	let l:last = line("'}")
+	if l:first > 1
+		let l:first = line("'{") + 1
+	endif
+	if l:last != line("$")
+		let l:last = l:last - 1
+	end
+	return getline(l:first, l:last)
+endfunction
+
+function! GetVisual()
+	return getline(line("'<'"), line("'>'"))
+endfunction
 
