@@ -435,17 +435,16 @@ endfunction
 
 function! GetParagraph()
 	let l:first = line("'{")
-	let l:last = line("'}")
+	let l:last = line("'}") - 1
 	if l:first > 1
-		let l:first = line("'{") + 1
+		let l:first = l:first + 1
 	endif
-	if l:last != line("$")
-		let l:last = l:last - 1
-	end
+	if getline(l:last + 1) != ""
+		let l:last = line("'}")
+	endif
 	return getline(l:first, l:last)
 endfunction
 
 function! GetVisual()
 	return getline(line("'<'"), line("'>'"))
 endfunction
-
