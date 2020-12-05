@@ -423,10 +423,12 @@ function! TmuxSend(region)
 endfunction
 
 nnoremap <silent> <M-e> :call TmuxSendLine(getline("."))<CR>
+inoremap <silent> <M-e> <esc>:call TmuxSendLine(getline("."))<CR>
 nnoremap <silent> <M-r> :call TmuxSend(GetParagraph())<CR>
+inoremap <silent> <M-r> <esc>:call TmuxSend(GetParagraph())<CR>
 vnoremap <silent> <M-e> :<C-U>call TmuxSend(GetVisual())<CR>
 
-command! -nargs=1 -complete=custom,TmuxTargets TargetPane :let g:tmux_target_pane=<f-args>
+command! -nargs=1 -complete=custom,TmuxTargets TmuxTargetPane :let g:tmux_target_pane=<f-args>
 
 function! TmuxTargets(A,L,P)
 	return "{right-of}\n{left-of}\n{down-of}\n{up-of}\n{last}\n{next}\n{previous}\n{top}\n{bottom}\n{left}\n{right}\
