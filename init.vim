@@ -90,8 +90,8 @@ nmap <silent> ]Q :clast<CR>
 nmap <silent> [Q :cfirs<CR>
 
 " rename word + repeat for next with dot
-nnoremap <leader>rn *Ncgn
-nnoremap <leader>rN #Ncgn
+nnoremap <Plug>(expand-word) :let @/=expand('<cword>')<CR>
+nmap <silent> <leader>rn <Plug>(expand-word)cgn
 
 nnoremap <c-q> <c-a>
 
@@ -243,15 +243,12 @@ function! FloatingWindow()
   let height = 30
   let y = &lines - height - 10
   let x = float2nr((&columns - width) * 0.5)
-  let opts = { 'relative': 'editor', 'row': y, 'col': x, 'width': width,
-				\ 'height': height, 'style': 'minimal'}
+  let opts = { 'relative': 'editor', 'row': y, 'col': x, 'width': width, 'height': height, 'style': 'minimal'}
 
 	" let buf = winbufnr(0)
   call nvim_open_win(buf, v:true, opts)
 	call Exec('ls')
-
-	setlocal bufhidden=wipe buftype=nofile nobuflisted noswapfile
-				\ ignorecase smartcase cursorline
+	setlocal bufhidden=wipe buftype=nofile nobuflisted noswapfile ignorecase smartcase cursorline
 	call deletebufline('%', 1, 2)
 	call deletebufline('%', line('.'), line('.'))
 	setlocal nomodifiable nomodified
@@ -366,17 +363,7 @@ command! ToggleVirtualText call ToggleDiagType()
 nnoremap <silent> <leader>se :call ToggleDiagType()<CR>
 
 set laststatus=0
-
-function! ToggleStatus()
-	if (&laststatus == 0)
-		set laststatus=2
-	else
-		set laststatus=0
-	endif
-endfunction
-
-command! ToggleStatus call ToggleStatus()
-nnoremap <silent> <leader>gt :ToggleStatus<CR>
+nnoremap <expr> <silent> <leader>gt &laststatus == 0 ? ':set laststatus=2<CR>' : ':set laststatus=0<CR>'
 
 nnoremap yp Vpyy
 
@@ -427,6 +414,7 @@ inoremap <silent> <M-e> <esc>:call TmuxSendLine(getline("."))<CR>
 nnoremap <silent> <M-r> :call TmuxSend(GetParagraph())<CR>
 inoremap <silent> <M-r> <esc>:call TmuxSend(GetParagraph())<CR>
 vnoremap <silent> <M-e> :<C-U>call TmuxSend(GetVisual())<CR>
+nnoremap <silent> <M-E> :call TmuxSend(getline(line("^"), line("$")))<CR>
 
 command! -nargs=1 -complete=custom,TmuxTargets TmuxTargetPane :let g:tmux_target_pane=<f-args>
 
