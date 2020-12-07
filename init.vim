@@ -21,6 +21,7 @@ call plug#begin('~/.config/nvim/plugged')
 	Plug 'nvim-treesitter/nvim-treesitter', { 'branch': '3160a19de3' }
 	Plug 'nvim-treesitter/nvim-treesitter-refactor', { 'branch': '9d4b9daf2f' }
 	Plug 'ludovicchabant/vim-gutentags'
+	Plug 'ngmy/vim-rubocop'
 call plug#end()
 
 set mouse=a
@@ -80,9 +81,9 @@ augroup autoquickfix
 augroup END
 
 "change :grep to rg
-set grepprg=rg\ --vimgrep\ --block-buffered
+set grepprg=rg\ --vimgrep
 set grepformat^=%f:%l:%c:%m
-nnoremap <leader>rw :silent grep! "\b<C-R><C-W>\b"<CR>:copen<CR><CR>
+nnoremap <leader>rw :silent grep "<C-R><C-W>"<Space>
 nnoremap <leader>rg :silent grep 
 nmap <silent> ]q :cnext<CR>
 nmap <silent> [q :cprev<CR>
@@ -100,14 +101,19 @@ nnoremap <silent> <c-k> :bnext<CR>
 nnoremap <silent> <c-j> :bprevious<CR>
 nnoremap <leader>d <c-^>
 nnoremap <leader>n *
-nnoremap <leader>m #
-nnoremap <leader>; :call setline('.', getline('.') . ';')<CR>
+nnoremap <leader>N #
+nnoremap <silent> <leader>; :call setline('.', getline('.') . ';')<CR>
 nnoremap <leader>b gea
 nnoremap <leader>B gEa
 
 let g:fzf_preview_window = []
 let g:fzf_layout = { 'window': { 'width': 0.5, 'height': 0.7 } }
 let g:rg_files_opts = 'rg --follow --files --hidden -g !.git '
+let g:fzf_action = {
+  \ 'ctrl-f': function('s:build_quickfix_list'),
+  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-x': 'split',
+  \ 'ctrl-v': 'vsplit' }
 
 command! Fzfp call fzf#run(fzf#wrap({'source': g:rg_files_opts, 'options': ['--multi']}))
 command! Fzfc call fzf#run(fzf#wrap({'source': g:rg_files_opts . expand('%:h:r'), 'options': ['--multi']}))
@@ -376,7 +382,7 @@ command! Rspec1 :exe "!bin/rspec %:" . line('.')
 command! RspecB :exe "!bin/rspec %"
 nnoremap <leader>4 :Rspec1<CR>
 nnoremap <leader>5 :RspecB<CR>
-let g:ruby_indent_access_modifier_style="indent"
+" let g:ruby_indent_access_modifier_style=""
 
 let g:bg_level = 1
 function! Darken()
