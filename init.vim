@@ -18,10 +18,10 @@ call plug#begin('~/.config/nvim/plugged')
 	Plug 'neoclide/jsonc.vim'
 	Plug 'lambdalisue/fern.vim'
 	Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install'  }
-	Plug 'nvim-treesitter/nvim-treesitter', { 'branch': '3160a19de3' }
-	Plug 'nvim-treesitter/nvim-treesitter-refactor', { 'branch': '9d4b9daf2f' }
+	Plug 'nvim-treesitter/nvim-treesitter'
+	Plug 'nvim-treesitter/nvim-treesitter-refactor'
 	Plug 'ludovicchabant/vim-gutentags'
-	Plug 'ngmy/vim-rubocop'
+	Plug 'justinmk/vim-dirvish'
 call plug#end()
 
 set mouse=a
@@ -117,10 +117,11 @@ let g:fzf_action = {
 
 command! Fzfp call fzf#run(fzf#wrap({'source': g:rg_files_opts, 'options': ['--multi']}))
 command! Fzfc call fzf#run(fzf#wrap({'source': g:rg_files_opts . expand('%:h:r'), 'options': ['--multi']}))
+
 command! -bang -nargs=* Rg
   \ call fzf#vim#grep(
   \   'rg --column --line-number --no-heading --color=always --smart-case -- ' . shellescape(<q-args>), 1,
-  \   fzf#vim#with_preview(), <bang>1)
+  \   fzf#vim#with_preview('up', 'ctrl-/'), <bang>1)
 
 autocmd! VimResized,VimEnter * call ResizeFZF()
 
@@ -160,18 +161,11 @@ vnoremap <silent> <c-p> :m '<-2<CR>gv=gv
 tnoremap <c-d> <c-\><c-n>:bd!<CR>
 autocmd! FileType fzf tnoremap <buffer> <esc> <c-q>
 
+nmap <leader>rj <Plug>(dirvish_split_up)
+nmap <leader>rl <Plug>(dirvish_vsplit_up)
+
 " tree
 nnoremap <leader>re :Fern . -drawer -reveal=% -toggle -width=41<CR>
-nnoremap <leader>rE :Fern . -drawer -reveal=% -toggle -width=61<CR>
-nnoremap <leader>rr :Fern . -reveal=% -opener=edit<CR>
-nnoremap <leader>rj :Fern . -reveal=% -opener=split<CR>
-nnoremap <leader>rk :Fern . -reveal=% -opener=leftabove\ split<CR>
-nnoremap <leader>rl :Fern . -reveal=% -opener=vsplit<CR>
-nnoremap <leader>rh :Fern . -reveal=% -opener=leftabove\ vsplit<CR>
-nnoremap <leader>rJ :Fern . -reveal=% -opener=botright\ split<CR>
-nnoremap <leader>rK :Fern . -reveal=% -opener=topleft\ split<CR>
-nnoremap <leader>rL :Fern . -reveal=% -opener=botright\ vsplit<CR>
-nnoremap <leader>rH :Fern . -reveal=% -opener=topleft\ vsplit<CR>
 let g:fern#default_hidden = 1
 
 let g:gitgutter_map_keys = 0
@@ -217,6 +211,7 @@ lua require'colorizer'.setup()
 "partial sourcing, visual, line, paragraph
 nnoremap <leader>ee :exe getline(".")<CR>
 nnoremap <leader>ep <ESC>:exe join(GetParagraph(), "\n")<CR>
+nnoremap <leader>eE :source %<CR>
 nnoremap <leader>ef mmk/^endfunction<CR>V?^function<CR>"sy`m:@s<CR>
 nnoremap <leader>ei :exe getline(".") \| PlugInstall<CR>
 vnoremap <silent> <leader>e <ESC>:<C-U>exe join(GetVisual(), "\n")<CR>
@@ -368,7 +363,7 @@ endfunction
 command! ToggleVirtualText call ToggleDiagType()
 nnoremap <silent> <leader>se :call ToggleDiagType()<CR>
 
-set laststatus=0
+set laststatus=2
 nnoremap <expr> <silent> <leader>gt &laststatus == 0 ? ':set laststatus=2<CR>' : ':set laststatus=0<CR>'
 
 nnoremap yp Vpyy
@@ -378,11 +373,14 @@ if exists('$TMUX')
     autocmd VimLeave * call system("tmux setw automatic-rename")
 endif
 
-command! Rspec1 :exe "!bin/rspec %:" . line('.')
-command! RspecB :exe "!bin/rspec %"
+command! Rspec1 call TmuxSendLine("bundle exec rspec " . expand("%") . ":" . line("."))
+ 
+command! RspecB call TmuxSendLine("bundle exec rspec " . expand("%")) 
 nnoremap <leader>4 :Rspec1<CR>
 nnoremap <leader>5 :RspecB<CR>
-" let g:ruby_indent_access_modifier_style=""
+let g:ruby_indent_access_modifier_style=""
+command! RR exe "silent !chromium 'http://api.rubyonrails.org/?q='" . expand("<cword>")
+command! RB exe "silent !chromium 'http://rubydoc.info/search/stdlib/core?q='" . expand("<cword>")
 
 let g:bg_level = 1
 function! Darken()
@@ -401,14 +399,14 @@ function! Lighten()
 	call Darker_bg(g:bg_level)
 endfunction
 
-nnoremap <c-up> :call Darken()<CR>
-nnoremap <c-down> :call Lighten()<CR>
-inoremap <c-up> <esc>:call Darken()<CR>
+nnoremap <c-up> :call darken()<cr>
+nnoremap <c-down> :call lighten()<cr>
+inoremap <c-up> <esc>:call darken()<cr>
 inoremap <c-down> <esc>:call Lighten()<CR>
 
 let g:tmux_target_pane = "{right-of}"
 function! TmuxSendLine(line)
-	exe "silent !tmux send-keys -t " . g:tmux_target_pane . " " . shellescape(a:line, 1) . "\r"
+	call system("tmux send-keys -t " . g:tmux_target_pane . " " . shellescape(a:line, 1) . "\r")
 endfunction
 
 function! TmuxSend(region)
@@ -430,13 +428,16 @@ function! TmuxTargets(A,L,P)
 endfunction
 
 function! GetParagraph()
+	if getline(".") == ""
+		return [""]
+	endif
 	let l:first = line("'{")
-	let l:last = line("'}") - 1
+	let l:last = line("'}")
 	if l:first > 1
 		let l:first = l:first + 1
 	endif
-	if getline(l:last + 1) != ""
-		let l:last = line("'}")
+	if getline(l:last) == ""
+		let l:last = line("'}") - 1
 	endif
 	return getline(l:first, l:last)
 endfunction
@@ -444,3 +445,40 @@ endfunction
 function! GetVisual()
 	return getline(line("'<'"), line("'>'"))
 endfunction
+
+cnoremap <C-a> <Home>
+cnoremap <C-e> <End>
+cnoremap <M-d> <Del>
+cnoremap <C-p> <Up>
+cnoremap <C-n> <Down>
+cnoremap <C-b> <Left>
+cnoremap <C-f> <Right>
+cnoremap <M-b> <S-Left>
+cnoremap <M-f> <S-Right>
+
+nnoremap yap mmyap`m
+vnoremap y mmy`m
+
+function! Yank(region)
+	let @+ = join(a:region, "\n") . "\n"
+	if len(a:region) == 1
+		echo "1 line yanked"
+	else
+		echo len(a:region) . " lines yanked"
+	endif
+endfunction
+
+nnoremap <silent>yip :call Yank(GetParagraph())<CR>
+" vnoremap <silent>y <Esc>:<C-U>call Yank(GetVisual())<CR>
+
+function! RailsRelationsJump(symbol)
+	return join(map(split(a:symbol, "_"), 'toupper(v:val[0]) . v:val[1:col("$")]'), "")
+endfunction
+
+function! RailsRelationsJump2(symbol)
+	 return RailsRelationsJump(a:symbol[0:len(a:symbol)-2])
+endfunction
+
+nnoremap <leader>] :exe "tag " . RailsRelationsJump(expand("<cword>"))<CR>
+nnoremap <leader>[ :exe "tag " . RailsRelationsJump2(expand("<cword>"))<CR>
+

@@ -773,5 +773,10 @@
       "ssh-add ~/.ssh/id_rsa"
     ],
     "description": "place into gitbash to save ssh key so you can push without entering your password"
+  },
+  "hashrocket": {
+	  "prefix": "j",
+	  "body": [ "=> $0" ],
+	  "description": "Hashrocket"
   }
 }

@@ -1,0 +1,47 @@
+{
+	"Function": {
+		"prefix": ["fun"],
+		"body": [
+			"function! $1($2)",
+			"\t$0",
+			"endfunction"
+		],
+		"description": "Function definition"
+	},
+	"If": {
+		"prefix": ["if"],
+		"body": [
+			"if $1",
+			"\t$0",
+			"endif"
+		],
+		"description": "If statement"
+	},
+	"If Else": {
+		"prefix": ["ife"],
+		"body": [
+			"if $1",
+			"\t$2",
+			"else",
+			"\t$0",
+			"endif"
+		],
+		"description": "If Else statement"
+	},
+	"Autocmd": {
+		"prefix": ["au"],
+		"body": [
+			"autocmd! $0"
+		],
+		"description": "Autocommand"
+	},
+	"Augroup": {
+		"prefix": ["aug"],
+		"body": [
+			"augroup $1",
+			"\tautocmd!",
+			"\tautocmd $0",
+			"augroup END"
+		]
+	}
+}
