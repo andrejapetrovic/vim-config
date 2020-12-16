@@ -45,8 +45,8 @@ set nobackup
 set nowritebackup
 set hidden
 
-" set background=light
-colorscheme hybrid
+set background=dark
+colorscheme toast
 
 map <Space> <Nop>
 let mapleader = " "
@@ -476,7 +476,7 @@ function! RailsRelationsJump(symbol)
 endfunction
 
 function! RailsRelationsJump2(symbol)
-	 return RailsRelationsJump(a:symbol[0:len(a:symbol)-2])
+	return RailsRelationsJump(a:symbol[0:len(a:symbol)-2])
 endfunction
 
 nnoremap <leader>] :exe "tag " . RailsRelationsJump(expand("<cword>"))<CR>
