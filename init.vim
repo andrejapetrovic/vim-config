@@ -494,7 +494,7 @@ endfunction
 
 function! GoToPartial2()
 	let l:word = expand("<cWORD>")
-	if stridx(l:word, "\",")
+	if stridx(l:word, "\",") != -1
 		let l:word = l:word[1:len(l:word)-3]
 	else
 		let l:word = l:word[1:len(l:word)-2]
