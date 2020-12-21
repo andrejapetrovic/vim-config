@@ -46,7 +46,7 @@ set nowritebackup
 set hidden
 
 set background=dark
-colorscheme toast
+colorscheme PaperColor
 
 map <Space> <Nop>
 let mapleader = " "
@@ -417,7 +417,7 @@ nnoremap <silent> <M-e> :call TmuxSendLine(getline("."))<CR>
 inoremap <silent> <M-e> <esc>:call TmuxSendLine(getline("."))<CR>
 nnoremap <silent> <M-r> :call TmuxSend(GetParagraph())<CR>
 inoremap <silent> <M-r> <esc>:call TmuxSend(GetParagraph())<CR>
-vnoremap <silent> <M-e> :<C-U>call TmuxSend(GetVisual())<CR>
+vnoremap <silent> <M-e> <Esc>:<C-U>call TmuxSend(GetVisual())<CR>
 nnoremap <silent> <M-E> :call TmuxSend(getline(line("^"), line("$")))<CR>
 
 command! -nargs=1 -complete=custom,TmuxTargets TmuxTargetPane :let g:tmux_target_pane=<f-args>
@@ -482,3 +482,28 @@ endfunction
 nnoremap <leader>] :exe "tag " . RailsRelationsJump(expand("<cword>"))<CR>
 nnoremap <leader>[ :exe "tag " . RailsRelationsJump2(expand("<cword>"))<CR>
 
+
+function! GoToPartial()
+	if stridx(expand("<cWORD>"), "/") != -1
+		call GoToPartial2()
+	else
+		let l:word = expand("<cword>")
+		exe "e " . expand('%:p:h') . "/_" . l:word . ".html.erb"
+	endif
+endfunction
+
+function! GoToPartial2()
+	let l:word = expand("<cWORD>")
+	if stridx(l:word, "\",")
+		let l:word = l:word[1:len(l:word)-3]
+	else
+		let l:word = l:word[1:len(l:word)-2]
+	endif
+	let l:splitted = split(l:word, '/')
+	let l:last = l:splitted[len(l:splitted) - 1]
+	let l:splitted[len(l:splitted) - 1] = "_" . l:last
+	let l:joined = join(l:splitted, '/')
+	exe "e app/views/" .  l:joined . ".html.erb"
+endfunction
+
+nnoremap <leader>' :call GoToPartial()<CR>
