@@ -1,3 +1,8 @@
+if exists("g:loaded_ruby_config")
+  finish
+endif
+let g:loaded_ruby_config = 1
+
 let g:ruby_indent_access_modifier_style=""
 
 command! Rspec1 call TmuxSendLine("bundle exec rspec " . expand("%") . ":" . line("."))

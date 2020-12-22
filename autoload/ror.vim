@@ -13,24 +13,12 @@ endfunction
 
 function! ror#go_to_partial()
 	if stridx(expand("<cWORD>"), "/") != -1
-		call ror#go_to_partial2()
+		let l:word = substitute(expand('<cWORD>'), '"\|,\|)\|(', '', 'g')
+		let l:word = substitute(expand(l:word), '.*\zs/', '/_', 'g')
+		exe "e app/views/" .  l:word . ".html.erb"
 	else
 		let l:word = expand("<cword>")
 		exe "e " . expand('%:p:h') . "/_" . l:word . ".html.erb"
 	endif
-endfunction
-
-function! ror#go_to_partial2()
-	let l:word = expand("<cWORD>")
-	if stridx(l:word, "\",") != -1
-		let l:word = l:word[1:len(l:word)-3]
-	else
-		let l:word = l:word[1:len(l:word)-2]
-	endif
-	let l:splitted = split(l:word, '/')
-	let l:last = l:splitted[len(l:splitted) - 1]
-	let l:splitted[len(l:splitted) - 1] = "_" . l:last
-	let l:joined = join(l:splitted, '/')
-	exe "e app/views/" .  l:joined . ".html.erb"
 endfunction
 
