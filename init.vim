@@ -24,6 +24,7 @@ call plug#begin('~/.config/nvim/plugged')
 	Plug 'justinmk/vim-dirvish'
 call plug#end()
 
+filetype plugin on
 set mouse=a
 set relativenumber number
 set updatetime=100
@@ -373,15 +374,6 @@ if exists('$TMUX')
     autocmd VimLeave * call system("tmux setw automatic-rename")
 endif
 
-command! Rspec1 call TmuxSendLine("bundle exec rspec " . expand("%") . ":" . line("."))
- 
-command! RspecB call TmuxSendLine("bundle exec rspec " . expand("%")) 
-nnoremap <leader>4 :Rspec1<CR>
-nnoremap <leader>5 :RspecB<CR>
-let g:ruby_indent_access_modifier_style=""
-command! RR exe "silent !chromium 'http://api.rubyonrails.org/?q='" . expand("<cword>")
-command! RB exe "silent !chromium 'http://rubydoc.info/search/stdlib/core?q='" . expand("<cword>")
-
 let g:bg_level = 1
 function! Darken()
 	if g:bg_level == g:max_bg_level
@@ -470,40 +462,3 @@ endfunction
 
 nnoremap <silent>yip :call Yank(GetParagraph())<CR>
 " vnoremap <silent>y <Esc>:<C-U>call Yank(GetVisual())<CR>
-
-function! RailsRelationsJump(symbol)
-	return join(map(split(a:symbol, "_"), 'toupper(v:val[0]) . v:val[1:col("$")]'), "")
-endfunction
-
-function! RailsRelationsJump2(symbol)
-	return RailsRelationsJump(a:symbol[0:len(a:symbol)-2])
-endfunction
-
-nnoremap <leader>] :exe "tag " . RailsRelationsJump(expand("<cword>"))<CR>
-nnoremap <leader>[ :exe "tag " . RailsRelationsJump2(expand("<cword>"))<CR>
-
-
-function! GoToPartial()
-	if stridx(expand("<cWORD>"), "/") != -1
-		call GoToPartial2()
-	else
-		let l:word = expand("<cword>")
-		exe "e " . expand('%:p:h') . "/_" . l:word . ".html.erb"
-	endif
-endfunction
-
-function! GoToPartial2()
-	let l:word = expand("<cWORD>")
-	if stridx(l:word, "\",") != -1
-		let l:word = l:word[1:len(l:word)-3]
-	else
-		let l:word = l:word[1:len(l:word)-2]
-	endif
-	let l:splitted = split(l:word, '/')
-	let l:last = l:splitted[len(l:splitted) - 1]
-	let l:splitted[len(l:splitted) - 1] = "_" . l:last
-	let l:joined = join(l:splitted, '/')
-	exe "e app/views/" .  l:joined . ".html.erb"
-endfunction
-
-nnoremap <leader>' :call GoToPartial()<CR>
