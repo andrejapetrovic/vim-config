@@ -397,6 +397,10 @@ cnoremap <M-f> <S-Right>
 nnoremap yap mmyap`m
 vnoremap y mmy`m
 
+nnoremap =ap mm=ap`m
+nnoremap =ip mm=ip`m
+vnoremap = mm=`m
+
 function! Yank(region)
 	let @+ = join(a:region, "\n") . "\n"
 	if len(a:region) == 1
@@ -451,17 +455,17 @@ function! GetIndent(line) abort
 endfunction
 
 function! AddIndent(indent) abort
-  let l:i = 0
-  let l:s = ""
-  while l:i < a:indent
-    if &expandtab
-      let l:s = l:s . " "
-    else
-      let l:s = l:s . "\t"
-    end
-    let l:i += 1
-  endwhile
-  return l:s
+	let l:i = 0
+	let l:s = ""
+	while l:i < a:indent
+		if &expandtab
+			let l:s = l:s . " "
+		else
+			let l:s = l:s . "\t"
+		end
+		let l:i += 1
+	endwhile
+	return l:s
 endfunction
 
 function! CommentRegion(pattern, boundaries) abort
