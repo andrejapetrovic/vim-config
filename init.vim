@@ -8,7 +8,7 @@ call plug#begin('~/.config/nvim/plugged')
 	Plug 'junegunn/gv.vim'
 	Plug 'tpope/vim-surround'
 	Plug 'tpope/vim-fugitive'
-	Plug 'tpope/vim-commentary'
+	" Plug 'tpope/vim-commentary'
 	Plug 'tpope/vim-repeat'
 	Plug 'tpope/vim-eunuch'
 	Plug 'hrsh7th/vim-vsnip'
@@ -101,9 +101,10 @@ nnoremap gb :ls<CR>:b<Space>
 nnoremap <silent> <c-k> :bnext<CR>
 nnoremap <silent> <c-j> :bprevious<CR>
 nnoremap <leader>d <c-^>
+nnoremap <CR> <c-^>
 nnoremap <leader>n *
 nnoremap <leader>N #
-nnoremap <silent> <leader>; :call setline('.', getline('.') . ';')<CR>
+" nnoremap <silent> <leader>; :call setline('.', getline('.') . ';')<CR>
 nnoremap <leader>b gea
 nnoremap <leader>B gEa
 
@@ -234,64 +235,6 @@ nmap <silent> <Plug>qfl-prev :cprevious \| call repeat#set("\<Plug>qfl-prev")<CR
 nmap ]q <Plug>qfl-next
 nmap [q <Plug>qfl-prev
 
-function! FloatingWindow()
-  let buf = nvim_create_buf(v:true, v:true)
-
-	if &columns < 110
-		let width = float2nr(&columns * 0.9)
-	else
-		let width = float2nr(&columns * 0.45)
-	endif
-  let height = 30
-  let y = &lines - height - 10
-  let x = float2nr((&columns - width) * 0.5)
-  let opts = { 'relative': 'editor', 'row': y, 'col': x, 'width': width, 'height': height, 'style': 'minimal'}
-
-	" let buf = winbufnr(0)
-  call nvim_open_win(buf, v:true, opts)
-	call Exec('ls')
-	setlocal bufhidden=wipe buftype=nofile nobuflisted noswapfile ignorecase smartcase cursorline
-	call deletebufline('%', 1, 2)
-	call deletebufline('%', line('.'), line('.'))
-	setlocal nomodifiable nomodified
-
-	nnoremap <buffer><silent> <ESC> :q<CR>
-	nnoremap <buffer> s /
-	nnoremap <buffer><silent> <CR> :call BuffSplit(getline("."), 'e')<CR>
-	nnoremap <buffer><silent> l :call BuffSplit(getline("."), 'e')<CR>
-	nnoremap <buffer><silent> <leader>l :call BuffSplit(getline("."), 'vs')<CR>
-	nnoremap <buffer><silent> <leader>h :call BuffSplit(getline("."), 'vertical leftabove split')<CR>
-	nnoremap <buffer><silent> <leader>j :call BuffSplit(getline("."), 'sp')<CR>
-	nnoremap <buffer><silent> <leader>k :call BuffSplit(getline("."), 'leftabove split')<CR>
-	nnoremap <buffer><silent> <leader>tt :call BuffSplit(getline("."), 'tabnew')<CR>
-	nnoremap <buffer><silent> <c-r> :call BuffWinDelete()<CR>
-endfunction
-
-function! BuffSplit(line, split_name)
-	q
-	execute a:split_name . ' ' . split(a:line, '"')[1]
-endfunction
-
-function! BuffWinDelete()
-	setlocal modifiable
-	" find a better way to get number at the beggining of the line
-	norm! 0e
-	execute 'bd ' . expand('<cword>')
-	call deletebufline('%', line('.'), line('.'))
-	setlocal nomodifiable
-endfunction
-
-function! Exec(command)
-    redir =>output
-    silent exec a:command
-    redir END
-    let @o = output
-    execute "put o"
-    return ''
-endfunction!
-
-nnoremap <leader>l :call FloatingWindow()<CR>
-
 set wildignore+=*node_modules/**,*bin/**,*build/**,*obj**
 
 lua require'lsp_compl'
@@ -397,8 +340,9 @@ inoremap <c-up> <esc>:call darken()<cr>
 inoremap <c-down> <esc>:call Lighten()<CR>
 
 let g:tmux_target_pane = "{right-of}"
+
 function! TmuxSendLine(line)
-	call system("tmux send-keys -t " . g:tmux_target_pane . " " . shellescape(a:line, 1) . "\r")
+	call system("tmux send-keys -t " . g:tmux_target_pane . " " . shellescape(a:line, [1]) . "\r")
 endfunction
 
 function! TmuxSend(region)
@@ -419,19 +363,21 @@ function! TmuxTargets(A,L,P)
 				\n{top-left}\n{top-right}\n{bottom-left}\n{bottom-right}"
 endfunction
 
-function! GetParagraph()
-	if getline(".") == ""
-		return [""]
-	endif
-	let l:first = line("'{")
-	let l:last = line("'}")
-	if l:first > 1
-		let l:first = l:first + 1
-	endif
-	if getline(l:last) == ""
-		let l:last = line("'}") - 1
-	endif
-	return getline(l:first, l:last)
+function! GetParagraphLines() abort
+  let l:first = line("'{")
+  let l:last = line("'}")
+  if l:first > 1
+    let l:first = l:first + 1
+  endif
+  if getline(l:last) == ""
+    let l:last = line("'}") - 1
+  endif
+  return [l:first, l:last]
+endfunction
+
+function! GetParagraph() abort
+	let l:boundaries = GetParagraphLines()
+	return getline(l:boundaries[0], l:boundaries[1])
 endfunction
 
 function! GetVisual()
@@ -462,3 +408,97 @@ endfunction
 
 nnoremap <silent>yip :call Yank(GetParagraph())<CR>
 " vnoremap <silent>y <Esc>:<C-U>call Yank(GetVisual())<CR>
+
+augroup makeprgs
+    autocmd!
+    autocmd Filetype c set makeprg=gcc\ -o\ %<\ %\ &&\ ./%:r
+augroup END
+
+function! SetCommentPattern() abort
+  let g:comment_pattern = split(&commentstring, '%s')
+  let g:comment_pattern[0] = substitute(g:comment_pattern[0], '\s\+$\|$', ' ', '')
+  if len(g:comment_pattern) == 1
+    let g:comment_pattern = g:comment_pattern + ['']
+  else
+    let g:comment_pattern[1] = substitute(g:comment_pattern[1], '%s/\s\+^\|^', ' ', '')
+  endif
+endfunction
+
+autocmd! BufEnter * call SetCommentPattern()
+
+function! CommentLine(pattern) abort
+  let l:line = trim(getline('.'))
+  if l:line == ""
+  elseif IsCommented(l:line, a:pattern)
+    call setline('.', AddIndent(GetIndent('.')) . l:line[len(a:pattern[0]):-len(a:pattern[1])-1])
+  else
+    call setline('.', AddIndent(GetIndent('.')) . a:pattern[0] . l:line . a:pattern[1])
+  endif
+endfunction
+
+function! IsCommented(line, pattern) abort
+  let l:left = a:line[0:len(a:pattern[0])-1]
+  let l:right = a:line[len(a:line)-len(a:pattern[1]):]
+  return l:left == a:pattern[0] && l:right == a:pattern[1]
+endfunction
+
+function! GetIndent(line) abort
+  if &expandtab
+    return indent(a:line)
+  else
+    return indent(a:line)/&tabstop
+  endif
+endfunction
+
+function! AddIndent(indent) abort
+  let l:i = 0
+  let l:s = ""
+  while l:i < a:indent
+    if &expandtab
+      let l:s = l:s . " "
+    else
+      let l:s = l:s . "\t"
+    end
+    let l:i += 1
+  endwhile
+  return l:s
+endfunction
+
+function! CommentRegion(pattern, boundaries) abort
+	if getline('.') == ""
+		return
+	endif
+	let l:current = a:boundaries[0]
+	let l:indent = GetIndent(l:current)
+	if IsCommented(trim(getline('.')), a:pattern)
+		while l:current <= a:boundaries[1]
+			let l:current_line = trim(getline(l:current))
+			if !IsCommented(l:current_line, a:pattern)
+			else
+				call setline(l:current, AddIndent(GetIndent(l:current)) . l:current_line[len(a:pattern[0]):-len(a:pattern[1])-1])
+			endif
+			let l:current += 1
+		endwhile
+	else
+		while l:current <= a:boundaries[1]
+			let l:current_indent = GetIndent(l:current)
+			let l:current_line = trim(getline(l:current))
+			if IsCommented(l:current_line, a:pattern) || l:current_line == ""
+			elseif l:indent > l:current_indent
+				call setline(l:current, AddIndent(l:current_indent) . a:pattern[0] . l:current_line . a:pattern[1])
+			else
+				call setline(l:current, AddIndent(l:indent) . a:pattern[0] . AddIndent(l:current_indent - l:indent) . l:current_line . a:pattern[1])
+			endif
+			let l:current += 1
+		endwhile
+	endif
+endfunction
+
+
+nmap <silent> <Plug>(comment-line) :call CommentLine(g:comment_pattern) \| call repeat#set("\<Plug>(comment-line)")<CR>
+nmap <silent> <Plug>(comment-paragraph) :call CommentRegion(g:comment_pattern, GetParagraphLines()) \| call repeat#set("\<Plug>(comment-paragraph)")<CR>
+
+nmap <silent> <leader>h <Plug>(comment-line)
+nmap <silent> <leader>H <Plug>(comment-paragraph)
+
+vnoremap <silent> <leader>h <Esc>:<C-u>call CommentRegion(g:comment_pattern, [line("'<"), line("'>")])<CR>

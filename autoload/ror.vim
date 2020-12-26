@@ -13,8 +13,8 @@ endfunction
 
 function! ror#go_to_partial()
 	if stridx(expand("<cWORD>"), "/") != -1
-		let l:word = substitute(expand('<cWORD>'), '"\|,\|)\|(', '', 'g')
-		let l:word = substitute(expand(l:word), '.*\zs/', '/_', 'g')
+		let l:word = substitute(expand('<cWORD>'), '"\|,\|)\|(\|\''', '', 'g')
+		let l:word = substitute(l:word, '.*\zs/', '/_', '')
 		exe "e app/views/" .  l:word . ".html.erb"
 	else
 		let l:word = expand("<cword>")
