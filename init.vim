@@ -141,8 +141,6 @@ nnoremap <silent> <leader>o :Buffers<CR>
 nnoremap <silent> <leader>u :History<CR>
 
 nnoremap <leader>sa :w<CR>
-nnoremap <leader>sl :w<CR>
-nnoremap <leader>sq :wq<CR>
 nnoremap <leader>sd :cd %:p:h<CR>
 nnoremap <leader>st :%s/\s\+$//e<CR>
 nnoremap <leader>tt :term<CR>
@@ -506,3 +504,10 @@ nmap <silent> <leader>h <Plug>(comment-line)
 nmap <silent> <leader>H <Plug>(comment-paragraph)
 
 vnoremap <silent> <leader>h <Esc>:<C-u>call CommentRegion(g:comment_pattern, [line("'<"), line("'>")])<CR>
+
+command! -nargs=1 -complete=tag Sur call setline('.', AddIndent(GetIndent('.')) . <f-args> . '(' . trim(getline('.')) . ')')
+nnoremap <leader>su :Sur 
+
+nnoremap dam f(mm%x`mbdf(
+nnoremap daM f(mm%x`mF.bdf(
+
