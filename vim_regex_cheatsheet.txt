@@ -1,0 +1,17 @@
+*		match zero or more
++		match one or more
+.		any one character 
+^		start
+$		end
+\s		whitespace character
+\S		non-whitespacespace character
+\w		word character
+\W		non-word character
+\%V 	visual block
+\zs		match start after matched
+\ze		match end after matched
+\zs\.	match until dot(.) character
+\{N}	N times
+
+/\(.\{-}\zs\.\)\{3} - matches 3rd occurence of dot(.) in line
+

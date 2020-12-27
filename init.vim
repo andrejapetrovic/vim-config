@@ -8,7 +8,6 @@ call plug#begin('~/.config/nvim/plugged')
 	Plug 'junegunn/gv.vim'
 	Plug 'tpope/vim-surround'
 	Plug 'tpope/vim-fugitive'
-	" Plug 'tpope/vim-commentary'
 	Plug 'tpope/vim-repeat'
 	Plug 'tpope/vim-eunuch'
 	Plug 'hrsh7th/vim-vsnip'
@@ -97,6 +96,7 @@ nmap <silent> <leader>rn <Plug>(expand-word)cgn
 
 nnoremap <c-q> <c-a>
 
+nnoremap Y y$
 nnoremap gb :ls<CR>:b<Space>
 nnoremap <silent> <c-k> :bnext<CR>
 nnoremap <silent> <c-j> :bprevious<CR>
@@ -315,23 +315,6 @@ if exists('$TMUX')
     autocmd VimLeave * call system("tmux setw automatic-rename")
 endif
 
-let g:bg_level = 1
-function! Darken()
-	if g:bg_level == g:max_bg_level
-		let g:bg_level = -1
-	endif
-	let g:bg_level = g:bg_level + 1
-	call Darker_bg(g:bg_level)
-endfunction
-
-function! Lighten()
-	if g:bg_level < 1
-		let g:bg_level = g:max_bg_level + 1
-	endif
-	let g:bg_level = g:bg_level - 1
-	call Darker_bg(g:bg_level)
-endfunction
-
 nnoremap <c-up> :call darken()<cr>
 nnoremap <c-down> :call lighten()<cr>
 inoremap <c-up> <esc>:call darken()<cr>
@@ -417,6 +400,9 @@ augroup makeprgs
 augroup END
 
 function! SetCommentPattern() abort
+	if empty(&commentstring)
+		return
+	endif
   let g:comment_pattern = split(&commentstring, '%s')
   let g:comment_pattern[0] = substitute(g:comment_pattern[0], '\s\+$\|$', ' ', '')
   if len(g:comment_pattern) == 1
@@ -424,6 +410,12 @@ function! SetCommentPattern() abort
   else
     let g:comment_pattern[1] = substitute(g:comment_pattern[1], '%s/\s\+^\|^', ' ', '')
   endif
+endfunction
+
+function! SetCommentString(cstring) abort
+	exe "autocmd! FileType " . &filetype . " setlocal commentstring=" . a:cstring
+	call SetCommentPattern()
+	exe "w | e"
 endfunction
 
 autocmd! BufEnter * call SetCommentPattern()
@@ -511,3 +503,40 @@ nnoremap <leader>su :Sur
 nnoremap dam f(mm%x`mbdf(
 nnoremap daM f(mm%x`mF.bdf(
 
+nnoremap <leader>sk :silent !mkdir %
+nnoremap <leader>sn :silent !touch %
+nnoremap <leader>sm :call Rename()<CR>
+nnoremap <leader>sr :call Confirm("Do you want to remove '" . getline('.') . "'? (y/n)", "silent !rm -rf '" . getline('.') . "'")<CR>
+vnoremap <leader>sm <esc>:<c-u>call BulkShdoRename()<CR>
+
+function! Confirm(msg, command)
+	echo a:msg . ' '
+	let l:answer = nr2char(getchar())
+	if l:answer ==? 'y' || l:answer ==? nr2char(13)
+		exe a:command 
+		echon ''
+	elseif l:answer ==? 'n' || l:answer ==? nr2char(27)
+		return 0
+	else
+		echo 'Please enter "y" or "n"'
+		return Confirm(a:msg, a:command)
+	endif
+endfunction
+
+function! Rename()
+  let l:name = getline('.')
+  call inputsave()
+  let l:newname = input('Rename: ', l:name)
+  call inputrestore()
+	redraw!
+	exe "silent !mv '" . l:name . "' '" . l:newname . "'"
+	echon ''
+endfunction
+
+function! BulkShdoRename() abort
+	exe "'<,'>Shdo mv {} {}"
+	%s/\(.\{-}\zs\'\)\{2}\zs/\/
+	silent! %!column -t -s '\/'
+endfunction
+
+vnoremap <leader>r :s/\%V
