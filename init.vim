@@ -437,11 +437,11 @@ function! IsCommented(line, pattern) abort
 endfunction
 
 function! GetIndent(line) abort
-  if &expandtab
-    return indent(a:line)
-  else
-    return indent(a:line)/&tabstop
-  endif
+	if &expandtab
+		return indent(a:line)
+	else
+		return indent(a:line)/&tabstop
+	endif
 endfunction
 
 function! AddIndent(indent) abort
