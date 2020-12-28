@@ -21,6 +21,7 @@ call plug#begin('~/.config/nvim/plugged')
 	Plug 'nvim-treesitter/nvim-treesitter-refactor'
 	Plug 'ludovicchabant/vim-gutentags'
 	Plug 'justinmk/vim-dirvish'
+	Plug 'ap/vim-buftabline'
 call plug#end()
 
 filetype plugin on
@@ -540,3 +541,20 @@ function! BulkShdoRename() abort
 endfunction
 
 vnoremap <leader>r :s/\%V
+
+function! Column(del, del_end)
+	exe "'<,'>s/\\%V" . a:del . "\\zs//g"
+	silent exe "'<,'>s/\\%V" . a:del_end . "/" . a:del_end
+	silent exe "'<,'>!column -t -s '' -o ' '"
+	silent exe "'<,'>s/\\%V" . a:del . "\\zs\\s\\{2}/ /g"
+	silent exe "'<,'>s/\\%V\\s" . a:del_end . "/" . a:del_end
+endfunction
+
+command! -range -nargs=* LineUp call Column(<f-args>)
+
+nnoremap <leader>ell :exe "lua " . getline('.')<CR>
+nnoremap <leader>elp :exe "lua " . join(GetParagraph(), '')<CR>
+vnoremap <leader>l <esc>:<c-u>exe "lua " . join(GetVisual(), '')<CR>
+
+let g:buftabline_separators = 1
+
