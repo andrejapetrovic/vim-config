@@ -557,4 +557,5 @@ nnoremap <leader>elp :exe "lua " . join(GetParagraph(), '')<CR>
 vnoremap <leader>l <esc>:<c-u>exe "lua " . join(GetVisual(), '')<CR>
 
 let g:buftabline_separators = 1
+let g:buftabline_show = 1
 
