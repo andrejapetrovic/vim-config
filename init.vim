@@ -555,3 +555,6 @@ let g:buftabline_separators = 1
 let g:buftabline_show = 1
 
 source $HOME/.config/nvim/float.vim
+
+command! OpenLink !chromium <cWORD>
+
