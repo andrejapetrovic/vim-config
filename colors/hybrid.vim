@@ -102,13 +102,13 @@ let s:palette.gui.foreground = { 'dark' : "#c5c8c6"        , 'light' : "#000000"
 let s:palette.gui.selection  = { 'dark' : s:gui_selection  , 'light' : "#bcbcbc" }
 let s:palette.gui.line       = { 'dark' : s:gui_line       , 'light' : "#d0d0d0" }
 let s:palette.gui.comment    = { 'dark' : s:gui_comment    , 'light' : "#5f5f5f" }
-let s:palette.gui.red        = { 'dark' : "#cc6666"        , 'light' : "#5f0000" }
-let s:palette.gui.orange     = { 'dark' : "#de935f"        , 'light' : "#875f00" }
-let s:palette.gui.yellow     = { 'dark' : "#f0c674"        , 'light' : "#5f5f00" }
-let s:palette.gui.green      = { 'dark' : "#b5bd68"        , 'light' : "#005f00" }
+let s:palette.gui.red        = { 'dark' : "#fc6666"        , 'light' : "#5f0000" }
+let s:palette.gui.orange     = { 'dark' : "#fe935f"        , 'light' : "#875f00" }
+let s:palette.gui.yellow     = { 'dark' : "#ffc674"        , 'light' : "#5f5f00" }
+let s:palette.gui.green      = { 'dark' : "#55bd98"        , 'light' : "#005f00" }
 let s:palette.gui.aqua       = { 'dark' : "#8abeb7"        , 'light' : "#005f5f" }
-let s:palette.gui.blue       = { 'dark' : "#81a2be"        , 'light' : "#00005f" }
-let s:palette.gui.purple     = { 'dark' : "#b294bb"        , 'light' : "#5f005f" }
+let s:palette.gui.blue       = { 'dark' : "#81a9ee"        , 'light' : "#00005f" }
+let s:palette.gui.purple     = { 'dark' : "#cf94cb"        , 'light' : "#5f005f" }
 let s:palette.gui.window     = { 'dark' : "#303030"        , 'light' : "#9e9e9e" }
 let s:palette.gui.darkcolumn = { 'dark' : "#1c1c1c"        , 'light' : "#808080" }
 let s:palette.gui.addbg      = { 'dark' : "#5F875F"        , 'light' : "#d7ffd7" }
@@ -457,13 +457,13 @@ let &background = s:style
 " Treesitter
  hi TSTag guifg=#81a2be
  hi TSTagDelimiter guifg=#f0c674
- hi TSVariableBuiltin guifg=#cc6666
+ hi TSVariableBuiltin guifg=#fc6666
  hi TSConstructor guifg=#de935f
  hi TSPunctBracket guifg=#c5c8c6
  hi TSVariable guifg=#c5c8c6
 
-hi CocErrorSign guifg=#cc6666
-hi CocErrorFloat guifg=#cc6666
+hi CocErrorSign guifg=#fc6666
+hi CocErrorFloat guifg=#fc6666
 hi LspDiagnosticsHint guifg=gray
 hi LspDiagnosticsError guifg=indianred
 
@@ -471,8 +471,12 @@ hi Search guibg=#566471 guifg=white
 hi MatchParen guibg=#566471 guifg=white
 
 hi TelescopeMatching guifg=#8abeb7
+hi BufTabLineCurrent guibg=#8abeb7 guifg=black
+hi BufTabLineHidden guibg=#566471 guifg=white
+hi BufTabLineActive guibg=white guifg=black
+hi TabLineFill guifg=#566471
 
-let g:max_bg_level = 2
+
 function! Darker_bg(level)
 	if a:level == 0
 		exe "hi Normal guibg=" . s:gui_background

@@ -47,7 +47,7 @@ set nowritebackup
 set hidden
 
 set background=dark
-colorscheme PaperColor
+colorscheme hybrid
 
 map <Space> <Nop>
 let mapleader = " "
@@ -316,11 +316,6 @@ if exists('$TMUX')
     autocmd VimLeave * call system("tmux setw automatic-rename")
 endif
 
-nnoremap <c-up> :call darken()<cr>
-nnoremap <c-down> :call lighten()<cr>
-inoremap <c-up> <esc>:call darken()<cr>
-inoremap <c-down> <esc>:call Lighten()<CR>
-
 let g:tmux_target_pane = "{right-of}"
 
 function! TmuxSendLine(line)
@@ -559,3 +554,4 @@ vnoremap <leader>l <esc>:<c-u>exe "lua " . join(GetVisual(), '')<CR>
 let g:buftabline_separators = 1
 let g:buftabline_show = 1
 
+source $HOME/.config/nvim/float.vim

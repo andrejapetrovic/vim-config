@@ -1,4 +1,10 @@
 {
+  "{": {
+    "prefix": "{",
+    "body": "{ |$1| $0 ",
+    "description": "{ } block",
+    "scope": "source.ruby"
+  },
   "do": {
     "prefix": "do",
     "body": "do\n\t$0\nend",

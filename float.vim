@@ -1,15 +1,16 @@
-function! FloatingWindow()
+function! BufferWindow()
   let buf = nvim_create_buf(v:true, v:true)
 
 	if &columns < 110
-		let width = float2nr(&columns * 0.9)
+		let width = float2nr(&columns * 0.7)
 	else
-		let width = float2nr(&columns * 0.45)
+		let width = float2nr(&columns * 0.35)
 	endif
   let height = 30
   let y = &lines - height - 10
   let x = float2nr((&columns - width) * 0.5)
   let opts = { 'relative': 'editor', 'row': y, 'col': x, 'width': width, 'height': height, 'style': 'minimal'}
+	let current_buffer = expand('%')
 
 	" let buf = winbufnr(0)
   call nvim_open_win(buf, v:true, opts)
@@ -17,7 +18,12 @@ function! FloatingWindow()
 	setlocal bufhidden=wipe buftype=nofile nobuflisted noswapfile ignorecase smartcase cursorline
 	call deletebufline('%', 1, 2)
 	call deletebufline('%', line('.'), line('.'))
+	silent exe "%s/\"\\s.*//"
+	silent exe "%s/^.*\"/  /"
+
+	call search(l:current_buffer)
 	setlocal nomodifiable nomodified
+	norm! 0
 
 	nnoremap <buffer><silent> <ESC> :q<CR>
 	nnoremap <buffer> s /
@@ -33,13 +39,12 @@ endfunction
 
 function! BuffSplit(line, split_name)
 	q
-	execute a:split_name . ' ' . split(a:line, '"')[1]
+	execute a:split_name . ' ' . trim(a:line)
 endfunction
 
 function! BuffWinDelete()
 	setlocal modifiable
-	" find a better way to get number at the beggining of the line
-	norm! 0e
+	norm! w
 	execute 'bd ' . expand('<cword>')
 	call deletebufline('%', line('.'), line('.'))
 	setlocal nomodifiable
@@ -54,5 +59,5 @@ function! Exec(command)
     return ''
 endfunction!
 
-nnoremap <leader>l :call FloatingWindow()<CR>
+nnoremap <leader>l :call BufferWindow()<CR>
 
