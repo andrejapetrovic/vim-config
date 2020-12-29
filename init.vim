@@ -40,7 +40,7 @@ set colorcolumn=120
 " set textwidth=80
 set tabstop=4
 set shiftwidth=4
-set expandtab
+" set expandtab
 set noswapfile
 set nobackup
 set nowritebackup
