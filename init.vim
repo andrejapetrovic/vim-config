@@ -73,9 +73,9 @@ function! s:build_quickfix_list(lines)
 endfunction
 
 augroup autoquickfix
-    autocmd!
-    autocmd QuickFixCmdPost [^l]* cwindow
-    autocmd QuickFixCmdPost    l* lwindow
+		autocmd!
+		autocmd QuickFixCmdPost [^l]* cwindow
+		autocmd QuickFixCmdPost    l* lwindow
 augroup END
 
 set grepprg=rg\ --vimgrep
@@ -108,18 +108,18 @@ let g:fzf_preview_window = []
 let g:fzf_layout = { 'window': { 'width': 0.5, 'height': 0.7 } }
 let g:rg_files_opts = 'rg --follow --files --hidden -g !.git '
 let g:fzf_action = {
-  \ 'ctrl-f': function('s:build_quickfix_list'),
-  \ 'ctrl-t': 'tab split',
-  \ 'ctrl-x': 'split',
-  \ 'ctrl-v': 'vsplit' }
+	\ 'ctrl-f': function('s:build_quickfix_list'),
+	\ 'ctrl-t': 'tab split',
+	\ 'ctrl-x': 'split',
+	\ 'ctrl-v': 'vsplit' }
 
 command! Fzfp call fzf#run(fzf#wrap({'source': g:rg_files_opts, 'options': ['--multi']}))
 command! Fzfc call fzf#run(fzf#wrap({'source': g:rg_files_opts . expand('%:h:r'), 'options': ['--multi']}))
 
 command! -bang -nargs=* Rg
-  \ call fzf#vim#grep(
-  \   'rg --column --line-number --no-heading --color=always --smart-case -- ' . shellescape(<q-args>), 1,
-  \   fzf#vim#with_preview('up', 'ctrl-/'), <bang>1)
+	\ call fzf#vim#grep(
+	\   'rg --column --line-number --no-heading --color=always --smart-case -- ' . shellescape(<q-args>), 1,
+	\   fzf#vim#with_preview('up', 'ctrl-/'), <bang>1)
 
 autocmd! VimResized,VimEnter * call ResizeFZF()
 
@@ -300,8 +300,8 @@ nnoremap <expr> <silent> <leader>gt &laststatus == 0 ? ':set laststatus=2<CR>' :
 nnoremap yp Vpyy
 
 if exists('$TMUX')
-    autocmd BufEnter * call system("tmux rename-window '" . expand("%:t") . "'")
-    autocmd VimLeave * call system("tmux setw automatic-rename")
+		autocmd BufEnter * call system("tmux rename-window '" . expand("%:t") . "'")
+		autocmd VimLeave * call system("tmux setw automatic-rename")
 endif
 
 let g:tmux_target_pane = "{right-of}"
@@ -329,15 +329,15 @@ function! TmuxTargets(A,L,P)
 endfunction
 
 function! GetParagraphLines() abort
-  let l:first = line("'{")
-  let l:last = line("'}")
-  if l:first > 1
-    let l:first = l:first + 1
-  endif
-  if getline(l:last) == ""
-    let l:last = line("'}") - 1
-  endif
-  return [l:first, l:last]
+	let l:first = line("'{")
+	let l:last = line("'}")
+	if l:first > 1
+		let l:first = l:first + 1
+	endif
+	if getline(l:last) == ""
+		let l:last = line("'}") - 1
+	endif
+	return [l:first, l:last]
 endfunction
 
 function! GetParagraph() abort
@@ -395,21 +395,21 @@ nnoremap <silent>yip :call Yank(GetParagraph())<CR>
 " vnoremap <silent>y <Esc>:<C-U>call Yank(GetVisual())<CR>
 
 augroup makeprgs
-    autocmd!
-    autocmd Filetype c set makeprg=gcc\ -o\ %<\ %\ &&\ ./%:r
+		autocmd!
+		autocmd Filetype c set makeprg=gcc\ -o\ %<\ %\ &&\ ./%:r
 augroup END
 
 function! SetCommentPattern() abort
 	if empty(&commentstring)
 		return
 	endif
-  let g:comment_pattern = split(&commentstring, '%s')
-  let g:comment_pattern[0] = substitute(g:comment_pattern[0], '\s\+$\|$', ' ', '')
-  if len(g:comment_pattern) == 1
-    let g:comment_pattern = g:comment_pattern + ['']
-  else
-    let g:comment_pattern[1] = substitute(g:comment_pattern[1], '%s/\s\+^\|^', ' ', '')
-  endif
+	let g:comment_pattern = split(&commentstring, '%s')
+	let g:comment_pattern[0] = substitute(g:comment_pattern[0], '\s\+$\|$', ' ', '')
+	if len(g:comment_pattern) == 1
+		let g:comment_pattern = g:comment_pattern + ['']
+	else
+		let g:comment_pattern[1] = substitute(g:comment_pattern[1], '%s/\s\+^\|^', ' ', '')
+	endif
 endfunction
 
 function! SetCommentString(cstring) abort
@@ -421,19 +421,19 @@ endfunction
 autocmd! BufEnter * call SetCommentPattern()
 
 function! CommentLine(pattern) abort
-  let l:line = trim(getline('.'))
-  if l:line == ""
-  elseif IsCommented(l:line, a:pattern)
-    call setline('.', AddIndent(GetIndent('.')) . l:line[len(a:pattern[0]):-len(a:pattern[1])-1])
-  else
-    call setline('.', AddIndent(GetIndent('.')) . a:pattern[0] . l:line . a:pattern[1])
-  endif
+	let l:line = trim(getline('.'))
+	if l:line == ""
+	elseif IsCommented(l:line, a:pattern)
+		call setline('.', AddIndent(GetIndent('.')) . l:line[len(a:pattern[0]):-len(a:pattern[1])-1])
+	else
+		call setline('.', AddIndent(GetIndent('.')) . a:pattern[0] . l:line . a:pattern[1])
+	endif
 endfunction
 
 function! IsCommented(line, pattern) abort
-  let l:left = a:line[0:len(a:pattern[0])-1]
-  let l:right = a:line[len(a:line)-len(a:pattern[1]):]
-  return l:left == a:pattern[0] && l:right == a:pattern[1]
+	let l:left = a:line[0:len(a:pattern[0])-1]
+	let l:right = a:line[len(a:line)-len(a:pattern[1]):]
+	return l:left == a:pattern[0] && l:right == a:pattern[1]
 endfunction
 
 function! GetIndent(line) abort
@@ -523,10 +523,10 @@ function! Confirm(msg, command)
 endfunction
 
 function! Rename()
-  let l:name = getline('.')
-  call inputsave()
-  let l:newname = input('Rename: ', l:name)
-  call inputrestore()
+	let l:name = getline('.')
+	call inputsave()
+	let l:newname = input('Rename: ', l:name)
+	call inputrestore()
 	redraw!
 	exe "silent !mv '" . l:name . "' '" . l:newname . "'"
 	echon ''
