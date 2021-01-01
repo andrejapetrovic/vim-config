@@ -4,7 +4,7 @@ endif
 let g:loaded_ruby_func = 1
 
 function! ror#relations_jump_singular(symbol)
-	return join(map(split(a:symbol, "_"), 'toupper(v:val[0]) . v:val[1:col("$")]'), "")
+	return join(map(split(a:symbol, "_"), 'toupper(v:val[0]) . v:val[1:]'), "")
 endfunction
 
 function! ror#relations_jump_plural(symbol)
