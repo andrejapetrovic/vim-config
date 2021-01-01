@@ -21,7 +21,6 @@ call plug#begin('~/.config/nvim/plugged')
 	Plug 'nvim-treesitter/nvim-treesitter-refactor'
 	Plug 'ludovicchabant/vim-gutentags'
 	Plug 'justinmk/vim-dirvish'
-	" Plug 'ap/vim-buftabline'
 call plug#end()
 
 filetype plugin on
@@ -554,9 +553,6 @@ command! -range -nargs=* LineUp call Column(<f-args>)
 nnoremap <leader>ell :exe "lua " . getline('.')<CR>
 nnoremap <leader>elp :exe "lua " . join(GetParagraph(), '')<CR>
 vnoremap <leader>l <esc>:<c-u>exe "lua " . join(GetVisual(), '')<CR>
-
-let g:buftabline_separators = 1
-let g:buftabline_show = 1
 
 source $HOME/.config/nvim/float.vim
 
