@@ -200,11 +200,11 @@ lua require'colorizer'.setup()
 
 "partial sourcing, visual, line, paragraph
 nnoremap <leader>ee :exe getline(".")<CR>
-nnoremap <leader>ep <ESC>:exe join(GetParagraph(), "\n")<CR>
+nnoremap <leader>ep <ESC>:exe join(ParseBackslash(GetParagraph()), "\n")<CR>
 nnoremap <leader>eE :source %<CR>
 nnoremap <leader>ef mmk/^endfunction<CR>V?^function<CR>"sy`m:@s<CR>
 nnoremap <leader>ei :exe getline(".") \| PlugInstall<CR>
-vnoremap <silent> <leader>e <ESC>:<C-U>exe join(GetVisual(), "\n")<CR>
+vnoremap <silent> <leader>e <ESC>:<C-U>exe join(ParseBackslash(GetVisual()), "\n")<CR>
 
 augroup tab_stop
 	autocmd!
@@ -348,6 +348,20 @@ endfunction
 
 function! GetVisual()
 	return getline(line("'<'"), line("'>'"))
+endfunction
+
+function! ParseBackslash(region) abort
+	let l:c = 0
+	let l:new_list = []
+	while l:c < len(a:region)
+		if match(a:region[l:c], '\s\+\\') != -1
+			let l:new_list[len(l:new_list) - 1] = l:new_list[len(l:new_list) - 1] . substitute(a:region[l:c], '\s\+\\', '', '')
+		else
+			call add(l:new_list, a:region[l:c])
+		endif
+		let l:c = l:c + 1
+	endwhile
+	return l:new_list
 endfunction
 
 cnoremap <C-a> <Home>
