@@ -65,7 +65,7 @@ let g:netrw_bufsettings = 'noma nomod nu nobl nowrap ro'
 let g:netrw_winsize = 20
 let g:netrw_preview = 1
 
-command! -range TrailingWhiteSpace <line1>,<line2>s/\s\+$//e
+command! -range=% TrailingWhiteSpace <line1>,<line2>s/\s\+$//e
 
 function! s:build_quickfix_list(lines)
 	call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
