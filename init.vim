@@ -356,7 +356,7 @@ function! ParseBackslash(region) abort
 	while l:c < len(a:region)
 		if match(a:region[l:c], '\s\+\\') != -1
 			let l:len = len(l:new_list) - 1
-			let l:new_list[l:len] = l:new_list[l:len] . substitute(a:region[l:c], '\s\+\\', '', '')
+			let l:new_list[l:len] = l:new_list[l:len] . substitute(a:region[l:c], '^\s\+\\', '', '')
 		else
 			call add(l:new_list, a:region[l:c])
 		endif
