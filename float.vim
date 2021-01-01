@@ -1,32 +1,33 @@
-function! BufferWindow()
-  let buf = nvim_create_buf(v:true, v:true)
-
+function! Float()
+	let current_buffer = expand('%')
+	let buf = nvim_create_buf(v:true, v:true)
 	if &columns < 110
 		let width = float2nr(&columns * 0.7)
 	else
 		let width = float2nr(&columns * 0.35)
 	endif
-  let height = 30
-  let y = &lines - height - 10
-  let x = float2nr((&columns - width) * 0.5)
-  let opts = { 'relative': 'editor', 'row': y, 'col': x, 'width': width, 'height': height, 'style': 'minimal'}
-	let current_buffer = expand('%')
+	let height = 30
+	let y = &lines - height - 10
+	let x = float2nr((&columns - width) * 0.5)
+	let opts = { 'relative': 'editor', 'row': y, 'col': x, 'width': width, 'height': height, 'style': 'minimal'}
+	silent call nvim_open_win(buf, v:true, opts)
+	return current_buffer
+endfunction
 
-	" let buf = winbufnr(0)
-  call nvim_open_win(buf, v:true, opts)
-	call Exec('ls')
+function! BufferWindow(content)
+	let g:current_buffer = escape(substitute(Float(), $HOME, '~', ''), '~/')
+	let @o = a:content
+	silent put o
 	setlocal bufhidden=wipe buftype=nofile nobuflisted noswapfile ignorecase smartcase cursorline
-	call deletebufline('%', 1, 2)
-	call deletebufline('%', line('.'), line('.'))
-	silent exe "%s/\"\\s.*//"
-	silent exe "%s/^.*\"/  /"
-
-	call search(l:current_buffer)
+	silent call deletebufline('%', 1, 2)
+	silent exe '%s/"\s.*//'
+	silent exe '%s/"//'
+	silent exe '%s/\d\+\zs\s\+\S\+//'
+	" silent exe '%s/^.*"/  /'
+	call search(g:current_buffer)
 	setlocal nomodifiable nomodified
 	norm! 0
-
 	nnoremap <buffer><silent> <ESC> :q<CR>
-	nnoremap <buffer> s /
 	nnoremap <buffer><silent> <CR> :call BuffSplit(getline("."), 'e')<CR>
 	nnoremap <buffer><silent> l :call BuffSplit(getline("."), 'e')<CR>
 	nnoremap <buffer><silent> <leader>l :call BuffSplit(getline("."), 'vs')<CR>
@@ -35,29 +36,39 @@ function! BufferWindow()
 	nnoremap <buffer><silent> <leader>k :call BuffSplit(getline("."), 'leftabove split')<CR>
 	nnoremap <buffer><silent> <leader>tt :call BuffSplit(getline("."), 'tabnew')<CR>
 	nnoremap <buffer><silent> <c-r> :call BuffWinDelete()<CR>
+	cnoremap <buffer> <c-o> <c-m>:norm l<CR>
+	nnoremap <buffer> i /
+	nnoremap <buffer> s /
 endfunction
 
 function! BuffSplit(line, split_name)
+	let l:splitted_line = split(a:line, '')
+	let l:start_idx = l:splitted_line[1] == '+' ? 2 : 1
 	q
-	execute a:split_name . ' ' . trim(a:line)
+	execute a:split_name . ' ' . join(l:splitted_line[l:start_idx:], ' ')
 endfunction
 
 function! BuffWinDelete()
 	setlocal modifiable
-	norm! w
-	execute 'bd ' . expand('<cword>')
-	call deletebufline('%', line('.'), line('.'))
+	norm! 0
+	" let l:line = trim(getline('.'))
+	let l:line = expand('<cword>')
+	try
+		call deletebufline('%', line('.'), line('.'))
+		exe 'bd ' . l:line
+	catch
+		q
+		bd
+	endtry
 	setlocal nomodifiable
 endfunction
 
 function! Exec(command)
-    redir =>output
-    silent exec a:command
-    redir END
-    let @o = output
-    execute "put o"
-    return ''
+	redir => l:output
+	silent exec a:command
+	redir END
+	return l:output
 endfunction!
 
-nnoremap <leader>l :call BufferWindow()<CR>
+nnoremap <silent> <leader>l :call BufferWindow(Exec('ls'))<CR>
 

@@ -21,7 +21,7 @@ call plug#begin('~/.config/nvim/plugged')
 	Plug 'nvim-treesitter/nvim-treesitter-refactor'
 	Plug 'ludovicchabant/vim-gutentags'
 	Plug 'justinmk/vim-dirvish'
-	Plug 'ap/vim-buftabline'
+	" Plug 'ap/vim-buftabline'
 call plug#end()
 
 filetype plugin on
@@ -65,9 +65,7 @@ let g:netrw_bufsettings = 'noma nomod nu nobl nowrap ro'
 let g:netrw_winsize = 20
 let g:netrw_preview = 1
 
-function! RemoveTrailingWS()
-	:%s/\s\+$//e
-endfunction
+command! -range TrailingWhiteSpace <line1>,<line2>s/\s\+$//e
 
 function! s:build_quickfix_list(lines)
 	call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
@@ -81,11 +79,10 @@ augroup autoquickfix
     autocmd QuickFixCmdPost    l* lwindow
 augroup END
 
-"change :grep to rg
 set grepprg=rg\ --vimgrep
 set grepformat^=%f:%l:%c:%m
-nnoremap <leader>rw :silent grep "<C-R><C-W>"<Space>
-nnoremap <leader>rg :silent grep 
+nnoremap <leader>rw :silent grep "<C-R><C-W>"<space>
+nnoremap <leader>rg :silent grep<space>
 nmap <silent> ]q :cnext<CR>
 nmap <silent> [q :cprev<CR>
 nmap <silent> ]Q :clast<CR>
@@ -105,7 +102,6 @@ nnoremap <leader>d <c-^>
 nnoremap <CR> <c-^>
 nnoremap <leader>n *
 nnoremap <leader>N #
-" nnoremap <silent> <leader>; :call setline('.', getline('.') . ';')<CR>
 nnoremap <leader>b gea
 nnoremap <leader>B gEa
 
@@ -141,9 +137,7 @@ nnoremap <silent> <leader>i :Fzfc<CR>
 nnoremap <silent> <leader>o :Buffers<CR>
 nnoremap <silent> <leader>u :History<CR>
 
-nnoremap <leader>sa :w<CR>
 nnoremap <leader>sd :cd %:p:h<CR>
-nnoremap <leader>st :%s/\s\+$//e<CR>
 nnoremap <leader>tt :term<CR>
 nnoremap <leader>ts :sp \| term<CR>
 nnoremap <leader>tv :vsp \| term<CR>
@@ -188,11 +182,6 @@ augroup custom_term
 				\ setlocal bufhidden=hide
 				\ | norm! a
 augroup END
-
-"comments
-autocmd! FileType typescript,c setlocal commentstring=//\ %s
-" autocmd! FileType javascript setlocal commentstring={/*\ %s\ */}
-autocmd! FileType javascript setlocal commentstring=//\ %s
 
 "git
 nmap <leader>gg :G<CR>
@@ -240,7 +229,7 @@ lua require'lsp_compl'
 
 nnoremap <silent> <leader>aD 	<cmd>lua vim.lsp.buf.declaration()<CR>
 nnoremap <silent> <leader>ad 	<cmd>lua vim.lsp.buf.definition()<CR>
-nnoremap <silent> K <cmd>lua vim.lsp.buf.hover()<CR>
+nnoremap <silent> K 					<cmd>lua vim.lsp.buf.hover()<CR>
 nnoremap <silent> <leader>ai  <cmd>lua vim.lsp.buf.implementation()<CR>
 nnoremap <silent> <leader>j 	<cmd>lua vim.lsp.buf.signature_help()<CR>
 nnoremap <silent> <leader>at  <cmd>lua vim.lsp.buf.type_definition()<CR>
@@ -370,6 +359,7 @@ cnoremap <C-b> <Left>
 cnoremap <C-f> <Right>
 cnoremap <M-b> <S-Left>
 cnoremap <M-f> <S-Right>
+cnoremap <c-F> <c-f>
 
 nnoremap yap mmyap`m
 vnoremap y mmy`m
@@ -484,7 +474,6 @@ function! CommentRegion(pattern, boundaries) abort
 	endif
 endfunction
 
-
 nmap <silent> <Plug>(comment-line) :call CommentLine(g:comment_pattern) \| call repeat#set("\<Plug>(comment-line)")<CR>
 nmap <silent> <Plug>(comment-paragraph) :call CommentRegion(g:comment_pattern, GetParagraphLines()) \| call repeat#set("\<Plug>(comment-paragraph)")<CR>
 
@@ -494,7 +483,7 @@ nmap <silent> <leader>H <Plug>(comment-paragraph)
 vnoremap <silent> <leader>h <Esc>:<C-u>call CommentRegion(g:comment_pattern, [line("'<"), line("'>")])<CR>
 
 command! -nargs=1 -complete=tag Sur call setline('.', AddIndent(GetIndent('.')) . <f-args> . '(' . trim(getline('.')) . ')')
-nnoremap <leader>su :Sur 
+nnoremap <leader>su :Sur<space>
 
 nnoremap dam f(mm%x`mbdf(
 nnoremap daM f(mm%x`mF.bdf(
@@ -509,7 +498,7 @@ function! Confirm(msg, command)
 	echo a:msg . ' '
 	let l:answer = nr2char(getchar())
 	if l:answer ==? 'y' || l:answer ==? nr2char(13)
-		exe a:command 
+		exe a:command
 		echon ''
 	elseif l:answer ==? 'n' || l:answer ==? nr2char(27)
 		return 0
