@@ -588,3 +588,5 @@ augroup END
 
 command! SudoWrite exe 'w !SUDO_ASKPASS=`which ssh-askpass` sudo tee > /dev/null %:p:S' | setlocal nomod
 
+command! GP !git push origin HEAD
+
