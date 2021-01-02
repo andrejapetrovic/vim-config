@@ -23,7 +23,6 @@ function! BufferWindow(content)
 	silent exe '%s/"\s.*//'
 	silent exe '%s/"//'
 	silent exe '%s/\d\+\zs\s\+\S\+//'
-	" silent exe '%s/^.*"/  /'
 	call search(g:current_buffer)
 	setlocal nomodifiable nomodified
 	norm! 0
@@ -63,12 +62,5 @@ function! BuffWinDelete()
 	setlocal nomodifiable
 endfunction
 
-function! Exec(command)
-	redir => l:output
-	silent exec a:command
-	redir END
-	return l:output
-endfunction!
-
-nnoremap <silent> <leader>l :call BufferWindow(Exec('ls'))<CR>
+nnoremap <silent> <leader>l :call BufferWindow(execute('ls'))<CR>
 

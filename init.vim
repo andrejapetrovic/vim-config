@@ -93,6 +93,10 @@ nmap <silent> <leader>rn <Plug>(expand-word)cgn
 
 nnoremap <c-q> <c-a>
 
+nnoremap <leader>f :find *
+nnoremap <leader>sf :sf *
+nnoremap <leader>sv :vert sf *
+
 nnoremap Y y$
 nnoremap gb :ls<CR>:b<Space>
 nnoremap <silent> <c-k> :bnext<CR>
@@ -222,7 +226,7 @@ nmap <silent> <Plug>qfl-prev :cprevious \| call repeat#set("\<Plug>qfl-prev")<CR
 nmap ]q <Plug>qfl-next
 nmap [q <Plug>qfl-prev
 
-set wildignore+=*node_modules/**,*bin/**,*build/**,*obj**
+set wildignore+=*node_modules/**,*bin/**,*build/**,*obj**,*plugged/**,*doc/**
 
 lua require'lsp_compl'
 
@@ -235,7 +239,7 @@ nnoremap <silent> <leader>at  <cmd>lua vim.lsp.buf.type_definition()<CR>
 nnoremap <silent> <leader>ar  <cmd>lua vim.lsp.buf.references()<CR>
 nnoremap <silent> <leader>as  <cmd>lua vim.lsp.buf.document_symbol()<CR>
 nnoremap <silent> <leader>aw  <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
-nnoremap <silent> <leader>f 	<cmd>lua vim.lsp.buf.formatting()<CR>
+nnoremap <silent> <leader>af 	<cmd>lua vim.lsp.buf.formatting()<CR>
 nnoremap <silent> <leader>aa 	<cmd>lua vim.lsp.buf.code_action()<CR>
 nnoremap <silent> <leader>. 	<cmd>lua vim.lsp.buf.code_action()<CR>
 nnoremap <silent> <leader>rm 	<cmd>lua vim.lsp.buf.rename()<CR>
@@ -364,16 +368,17 @@ function! ParseBackslash(region) abort
 	return l:new_list
 endfunction
 
+cnoremap <c-F> <esc>q:k
 cnoremap <C-a> <Home>
 cnoremap <C-e> <End>
-cnoremap <M-d> <Del>
+cnoremap <c-D> <Del>
+cnoremap <M-d> <s-Right><c-w>
 cnoremap <C-p> <Up>
 cnoremap <C-n> <Down>
 cnoremap <C-b> <Left>
 cnoremap <C-f> <Right>
 cnoremap <M-b> <S-Left>
 cnoremap <M-f> <S-Right>
-cnoremap <c-F> <c-f>
 
 nnoremap yap mmyap`m
 vnoremap y mmy`m
@@ -557,4 +562,27 @@ vnoremap <leader>l <esc>:<c-u>exe "lua " . join(GetVisual(), '')<CR>
 source $HOME/.config/nvim/float.vim
 
 command! OpenLink !chromium <cWORD>
+
+augroup dirvish_config
+	autocmd!
+	autocmd FileType dirvish cnoremap <buffer> <c-o> <c-m>:norm i<CR>
+augroup END
+
+command! -nargs=* -complete=customlist,ListOldFiles OldFiles call OpenFile(<f-args>)
+
+function! ListOldFiles(ArgLead, CmdLine, CursorPos)
+	return filter(copy(v:oldfiles), 'v:val =~ "'. a:ArgLead .'"')
+endfunction
+
+function! OpenFile(path,...)
+	let l:action = len(a:000) == 0 ? 'e' : join(a:000, ' ')
+	exe l:action . ' ' . a:path
+endfunction
+
+nnoremap <leader>so :OldFiles<space>
+
+augroup set_path
+	autocmd!
+	autocmd VimEnter * if filereadable('./Gemfile') | set path=.*,app/**,spec/**,db/**,.,* | endif
+augroup END
 
