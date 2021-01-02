@@ -368,7 +368,7 @@ function! ParseBackslash(region) abort
 	return l:new_list
 endfunction
 
-cnoremap <c-F> <esc>q:k
+cnoremap <c-q> <esc>q:k
 cnoremap <C-a> <Home>
 cnoremap <C-e> <End>
 cnoremap <c-D> <Del>
@@ -585,4 +585,6 @@ augroup set_path
 	autocmd!
 	autocmd VimEnter * if filereadable('./Gemfile') | set path=.*,app/**,spec/**,db/**,.,* | endif
 augroup END
+
+command! SudoWrite exe 'w !SUDO_ASKPASS=`which ssh-askpass` sudo tee > /dev/null %:p:S' | setlocal nomod
 
