@@ -397,7 +397,6 @@ function! Yank(region)
 endfunction
 
 nnoremap <silent>yip :call Yank(GetParagraph())<CR>
-" vnoremap <silent>y <Esc>:<C-U>call Yank(GetVisual())<CR>
 
 augroup makeprgs
 		autocmd!
@@ -472,8 +471,7 @@ function! CommentRegion(pattern, boundaries) abort
 	if IsCommented(trim(getline('.')), a:pattern)
 		while l:current <= a:boundaries[1]
 			let l:current_line = trim(getline(l:current))
-			if !IsCommented(l:current_line, a:pattern)
-			else
+			if IsCommented(l:current_line, a:pattern)
 				call setline(l:current, AddIndent(GetIndent(l:current)) . l:current_line[len(a:pattern[0]):-len(a:pattern[1])-1])
 			endif
 			let l:current += 1
@@ -545,16 +543,6 @@ endfunction
 
 vnoremap <leader>r :s/\%V
 
-function! Column(del, del_end)
-	exe "'<,'>s/\\%V" . a:del . "\\zs//g"
-	silent exe "'<,'>s/\\%V" . a:del_end . "/" . a:del_end
-	silent exe "'<,'>!column -t -s '' -o ' '"
-	silent exe "'<,'>s/\\%V" . a:del . "\\zs\\s\\{2}/ /g"
-	silent exe "'<,'>s/\\%V\\s" . a:del_end . "/" . a:del_end
-endfunction
-
-command! -range -nargs=* LineUp call Column(<f-args>)
-
 nnoremap <leader>ell :exe "lua " . getline('.')<CR>
 nnoremap <leader>elp :exe "lua " . join(GetParagraph(), '')<CR>
 vnoremap <leader>l <esc>:<c-u>exe "lua " . join(GetVisual(), '')<CR>
@@ -590,3 +578,5 @@ command! SudoWrite exe 'w !SUDO_ASKPASS=`which ssh-askpass` sudo tee > /dev/null
 
 command! GP !git push origin HEAD
 
+nnoremap <f1> <c-]>
+nnoremap <f2> <c-t>

@@ -476,6 +476,7 @@ hi BufTabLineHidden guibg=#566471 guifg=white
 hi BufTabLineActive guibg=white guifg=black
 hi TabLineFill guifg=#566471
 hi Tabline guifg=#566471
+hi PmenuSel guifg=gray guibg=black
 
 function! Darker_bg(level)
 	if a:level == 0

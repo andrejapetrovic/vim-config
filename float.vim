@@ -34,7 +34,8 @@ function! BufferWindow(content)
 	nnoremap <buffer><silent> <leader>j :call BuffSplit(getline("."), 'sp')<CR>
 	nnoremap <buffer><silent> <leader>k :call BuffSplit(getline("."), 'leftabove split')<CR>
 	nnoremap <buffer><silent> <leader>tt :call BuffSplit(getline("."), 'tabnew')<CR>
-	nnoremap <buffer><silent> <c-r> :call BuffWinDelete()<CR>
+	nnoremap <buffer><silent> <c-r> :call BuffWinDelete(' ')<CR>
+	nnoremap <buffer><silent> R :call BuffWinDelete('! ')<CR>
 	cnoremap <buffer> <c-o> <c-m>:norm l<CR>
 	nnoremap <buffer> i /
 	nnoremap <buffer> s /
@@ -47,19 +48,19 @@ function! BuffSplit(line, split_name)
 	execute a:split_name . ' ' . join(l:splitted_line[l:start_idx:], ' ')
 endfunction
 
-function! BuffWinDelete()
+function! BuffWinDelete(bang)
 	setlocal modifiable
 	norm! 0
 	" let l:line = trim(getline('.'))
 	let l:line = expand('<cword>')
 	try
+		exe 'bd' . a:bang . l:line
 		call deletebufline('%', line('.'), line('.'))
-		exe 'bd ' . l:line
 	catch
-		q
-		bd
+		echoerr "Buffer currently opened"
+	finally
+		setlocal nomodifiable
 	endtry
-	setlocal nomodifiable
 endfunction
 
 nnoremap <silent> <leader>l :call BufferWindow(execute('ls'))<CR>
