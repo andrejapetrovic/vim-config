@@ -580,3 +580,7 @@ command! GP !git push origin HEAD
 
 nnoremap <f1> <c-]>
 nnoremap <f2> <c-t>
+
+inoremap <c-f> <Right>
+inoremap <c-b> <Left>
+

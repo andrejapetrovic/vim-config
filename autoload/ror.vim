@@ -8,7 +8,14 @@ function! ror#relations_jump_singular(symbol)
 endfunction
 
 function! ror#relations_jump_plural(symbol)
-	return ror#relations_jump_singular(a:symbol[0:len(a:symbol)-2])
+	let l:sym = ror#relations_jump_singular(a:symbol)
+	if match(l:sym, 'ies$') != -1
+		return l:sym[0:len(l:sym) - 4] . 'y'
+	elseif match(l:sym, 's$') != -1
+		return l:sym[0:len(l:sym) - 2]
+	else
+		echoerr "Can't convert plural to singular"
+	endif
 endfunction
 
 function! ror#go_to_partial()
@@ -22,3 +29,13 @@ function! ror#go_to_partial()
 	endif
 endfunction
 
+function! ror#schema_search(table_name)
+	e db/schema.rb
+	call search('create_table "' . a:table_name . '"')
+endfunction
+
+function! ror#model_complete(ArgLead, CmdLine, CursorPos)
+	let l:files = system('find app/models/** -type f | sed "s/.*\///"')
+	let l:files = substitute(l:files, 'y.rb', 'ies', 'g')
+	return substitute(l:files, '.rb', 's', 'g')
+endfunction

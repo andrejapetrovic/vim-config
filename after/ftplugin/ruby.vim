@@ -9,6 +9,7 @@ command! Rspec1 call TmuxSendLine("bundle exec rspec " . expand("%") . ":" . lin
 command! RspecB call TmuxSendLine("bundle exec rspec " . expand("%")) 
 command! RR exe "silent !chromium 'http://api.rubyonrails.org/?q='" . expand("<cword>")
 command! RB exe "silent !chromium 'http://rubydoc.info/search/stdlib/core?q='" . expand("<cword>")
+command! -nargs=1 -complete=custom,ror#model_complete Scm call ror#schema_search(<f-args>)
 
 nnoremap <leader>4 :Rspec1<CR>
 nnoremap <leader>5 :RspecB<CR>
