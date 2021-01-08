@@ -536,8 +536,7 @@ function! Rename()
 endfunction
 
 function! BulkShdoRename() abort
-	exe "'<,'>Shdo mv {} {}"
-	%s/\(.\{-}\zs\'\)\{2}\zs/\/
+	exe "'<,'>Shdo mv\/ {}\/ {}"
 	silent! %!column -t -s '\/'
 endfunction
 
