@@ -16,3 +16,4 @@ nnoremap <leader>5 :RspecB<CR>
 nnoremap <leader>] :exe "tag " . ror#relations_jump_singular(expand("<cword>"))<CR>
 nnoremap <leader>[ :exe "tag " . ror#relations_jump_plural(expand("<cword>"))<CR>
 nnoremap <leader>' :call ror#go_to_partial()<CR>
+nnoremap <leader>} :call ror#scope_jump()<CR>

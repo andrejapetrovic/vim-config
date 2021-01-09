@@ -39,3 +39,11 @@ function! ror#model_complete(ArgLead, CmdLine, CursorPos)
 	let l:files = substitute(l:files, 'y.rb', 'ies', 'g')
 	return substitute(l:files, '.rb', 's', 'g')
 endfunction
+
+function! ror#scope_jump() abort
+	let l:s = split(expand('<cWORD>'), '\.')
+	let l:method = substitute(l:s[1], '(.\+', '', '')
+	exe 'tag ' . l:s[0]
+	call search(l:method)
+endfunction
+
