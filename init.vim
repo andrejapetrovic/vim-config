@@ -325,11 +325,12 @@ inoremap <silent> <M-r> <esc>:call TmuxSend(GetParagraph())<CR>
 vnoremap <silent> <M-e> <Esc>:<C-U>call TmuxSend(GetVisual())<CR>
 nnoremap <silent> <M-E> :call TmuxSend(getline(line("^"), line("$")))<CR>
 
-command! -nargs=1 -complete=custom,TmuxTargets TmuxTargetPane :let g:tmux_target_pane=<f-args>
+command! -nargs=1 -complete=customlist,TmuxTargets TmuxTargetPane :let g:tmux_target_pane=<f-args>
 
-function! TmuxTargets(A,L,P)
-	return "{right-of}\n{left-of}\n{down-of}\n{up-of}\n{last}\n{next}\n{previous}\n{top}\n{bottom}\n{left}\n{right}\
-				\n{top-left}\n{top-right}\n{bottom-left}\n{bottom-right}"
+function! TmuxTargets(ArgLead, CmdLine, CursorPos)
+	return filter(['{right-of}', '{left-of}', '{down-of}', '{up-of}', '{last}', '{next}', '{previous}', '{top}',
+				\ '{bottom}', '{left}', '{right}', '{top-left}', '{top-right}', '{bottom-left}', '{bottom-right}'],
+				\ 'v:val =~ "' . a:ArgLead . '"')
 endfunction
 
 function! GetParagraphLines() abort
@@ -381,22 +382,16 @@ cnoremap <M-b> <S-Left>
 cnoremap <M-f> <S-Right>
 
 nnoremap yap mmyap`m
+nnoremap yip mmyip`m
 vnoremap y mmy`m
 
 nnoremap =ap mm=ap`m
 nnoremap =ip mm=ip`m
 vnoremap = mm=`m
 
-function! Yank(region)
-	let @+ = join(a:region, "\n") . "\n"
-	if len(a:region) == 1
-		echo "1 line yanked"
-	else
-		echo len(a:region) . " lines yanked"
-	endif
-endfunction
-
-nnoremap <silent>yip :call Yank(GetParagraph())<CR>
+nnoremap <m-p> "0p
+nnoremap <M-P> "0P
+vnoremap <M-p> "0p
 
 augroup makeprgs
 		autocmd!
@@ -582,4 +577,6 @@ nnoremap <f2> <c-t>
 
 inoremap <c-f> <Right>
 inoremap <c-b> <Left>
+
+command! Colscm e ~/.config/nvim/init.vim | call search('^colorscheme ') | norm w
 

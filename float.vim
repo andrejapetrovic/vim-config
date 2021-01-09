@@ -37,7 +37,7 @@ function! BufferWindow(content)
 	nnoremap <buffer><silent> <c-r> :call BuffWinDelete(' ')<CR>
 	nnoremap <buffer><silent> R :call BuffWinDelete('! ')<CR>
 	cnoremap <buffer> <c-o> <c-m>:norm l<CR>
-	nnoremap <buffer> i /
+	nmap <buffer> i l
 	nnoremap <buffer> s /
 endfunction
 
