@@ -19,6 +19,9 @@ function! ror#relations_jump_plural(symbol)
 endfunction
 
 function! ror#go_to_partial()
+	if match(expand('<cword>'), 'render\|partial') != -1
+		call search('"\|\''', '', line('.'))
+	endif
 	if stridx(expand("<cWORD>"), "/") != -1
 		let l:word = substitute(expand('<cWORD>'), '"\|,\|)\|(\|\''', '', 'g')
 		let l:word = substitute(l:word, '.*\zs/', '/_', '')
@@ -45,5 +48,14 @@ function! ror#scope_jump() abort
 	let l:method = substitute(l:s[1], '(.\+', '', '')
 	exe 'tag ' . l:s[0]
 	call search(l:method)
+endfunction
+
+function! ror#ri_docs(term) abort
+	split /tmp/ri_docs
+	exe 'r !bundle exec ri ' . a:term . ' --no-interactive --no-pager --format=rdoc'
+	setlocal syntax=markdown
+	norm! ggdd
+	setlocal bufhidden=wipe buftype=nofile nobuflisted noswapfile ignorecase smartcase nomodifiable nomodified
+	syntax clear markdownError
 endfunction
 

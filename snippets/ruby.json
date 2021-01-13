@@ -5,6 +5,12 @@
     "description": "{ } block",
     "scope": "source.ruby"
   },
+  "it": {
+    "prefix": "it",
+    "body": "it { expect$0 } ",
+    "description": "it 1 line",
+    "scope": "source.ruby"
+  },
   "do": {
     "prefix": "do",
     "body": "do\n\t$0\nend",

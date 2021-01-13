@@ -142,8 +142,8 @@ nnoremap <silent> <leader>u :History<CR>
 
 nnoremap <leader>sd :cd %:p:h<CR>
 nnoremap <leader>tt :term<CR>
-nnoremap <leader>ts :sp \| term<CR>
-nnoremap <leader>tv :vsp \| term<CR>
+nnoremap <leader>ts :split term://bash<CR>
+nnoremap <leader>tv :vsplit term://bash<CR>
 
 nnoremap <leader>q <c-w>q
 nnoremap <leader>w <c-w>w
@@ -216,7 +216,7 @@ augroup tab_stop
 				\ | setlocal shiftwidth=2
 augroup END
 
-autocmd! Filetype vim nnoremap <silent><buffer> K :norm! K<CR>
+autocmd! Filetype vim,help nnoremap <silent><buffer> K :norm! K<CR>
 
 command! Ini :e $MYVIMRC
 cabbrev ini Ini
@@ -535,6 +535,7 @@ function! BulkShdoRename() abort
 	silent! %!column -t -s '\/'
 endfunction
 
+nnoremap <leader>rs %s/
 vnoremap <leader>r :s/\%V
 
 nnoremap <leader>ell :exe "lua " . getline('.')<CR>
@@ -570,9 +571,10 @@ augroup END
 
 command! SudoWrite exe 'w !SUDO_ASKPASS=`which ssh-askpass` sudo tee > /dev/null %:p:S' | setlocal nomod
 
-command! GP !git push origin HEAD
+" command! GP !git push origin HEAD
+command! GP split term://git push origin HEAD
 
-nnoremap <f1> <c-]>
+noremap <f1> <c-]>
 nnoremap <f2> <c-t>
 
 inoremap <c-f> <Right>
