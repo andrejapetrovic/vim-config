@@ -571,8 +571,7 @@ augroup END
 
 command! SudoWrite exe 'w !SUDO_ASKPASS=`which ssh-askpass` sudo tee > /dev/null %:p:S' | setlocal nomod
 
-" command! GP !git push origin HEAD
-command! GP split term://git push origin HEAD
+command! GP !git push origin HEAD
 
 noremap <f1> <c-]>
 nnoremap <f2> <c-t>
