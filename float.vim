@@ -1,21 +1,20 @@
-function! Float()
-	let current_buffer = expand('%')
+function! Float(w, h)
 	let buf = nvim_create_buf(v:true, v:true)
 	if &columns < 110
-		let width = float2nr(&columns * 0.7)
+		let width = float2nr(&columns * a:w*2)
 	else
-		let width = float2nr(&columns * 0.35)
+		let width = float2nr(&columns * a:w)
 	endif
-	let height = 30
+	let height = float2nr(&lines * a:h)
 	let y = &lines - height - 10
 	let x = float2nr((&columns - width) * 0.5)
 	let opts = { 'relative': 'editor', 'row': y, 'col': x, 'width': width, 'height': height, 'style': 'minimal'}
 	silent call nvim_open_win(buf, v:true, opts)
-	return current_buffer
 endfunction
 
 function! BufferWindow(content)
-	let g:current_buffer = escape(substitute(Float(), $HOME, '~', ''), '~/')
+	let g:current_buffer = escape(substitute(bufname(), $HOME, '~', ''), '~/')
+	call Float(0.35, 0.7)
 	let @o = a:content
 	silent put o
 	setlocal bufhidden=wipe buftype=nofile nobuflisted noswapfile ignorecase smartcase cursorline
@@ -64,4 +63,3 @@ function! BuffWinDelete(bang)
 endfunction
 
 nnoremap <silent> <leader>l :call BufferWindow(execute('ls'))<CR>
-

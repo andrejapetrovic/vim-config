@@ -43,5 +43,14 @@
 			"\tautocmd $0",
 			"augroup END"
 		]
+	},
+	"Try": {
+		"prefix": ["try"],
+		"body": [
+			"try",
+			"\t$0",
+			"catch",
+			"endtry"
+		]
 	}
 }

@@ -15,7 +15,6 @@ call plug#begin('~/.config/nvim/plugged')
 	Plug 'norcalli/nvim-colorizer.lua'
 	Plug 'Townk/vim-autoclose'
 	Plug 'neoclide/jsonc.vim'
-	Plug 'lambdalisue/fern.vim'
 	Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install'  }
 	Plug 'nvim-treesitter/nvim-treesitter'
 	Plug 'nvim-treesitter/nvim-treesitter-refactor'
@@ -82,10 +81,29 @@ set grepprg=rg\ --vimgrep
 set grepformat^=%f:%l:%c:%m
 nnoremap <leader>rw :silent grep "<C-R><C-W>"<space>
 nnoremap <leader>rg :silent grep<space>
-nmap <silent> ]q :cnext<CR>
-nmap <silent> [q :cprev<CR>
+
+nmap <silent> <Plug>(qfl-next) :call Cnext() \| call repeat#set("\<Plug>(qfl-next)")<CR>
+nmap <silent> <Plug>(qfl-prev) :call Cprev() \| call repeat#set("\<Plug>(qfl-prev)")<CR>
+nmap <silent> ]q <Plug>(qfl-next)
+nmap <silent> [q <Plug>(qfl-prev)
 nmap <silent> ]Q :clast<CR>
 nmap <silent> [Q :cfirs<CR>
+
+function! Cnext()
+	try
+		cnext
+	catch
+		cfirst
+	endtry
+endfunction
+
+function! Cprev()
+	try
+		cprev
+	catch
+		clast
+	endtry
+endfunction
 
 " rename word + repeat for next with dot
 nnoremap <Plug>(expand-word) :let @/=expand('<cword>')<CR>
@@ -162,13 +180,11 @@ autocmd! FileType fzf tnoremap <buffer> <esc> <c-q>
 nmap <leader>rj <Plug>(dirvish_split_up)
 nmap <leader>rl <Plug>(dirvish_vsplit_up)
 
-" tree
-nnoremap <leader>re :Fern . -drawer -reveal=% -toggle -width=41<CR>
-let g:fern#default_hidden = 1
-
 let g:gitgutter_map_keys = 0
-nmap <silent> <leader>gn <Plug>(GitGutterNextHunk) :call repeat#set("\<Plug>(GitGutterNextHunk)")<CR>
-nmap <silent> <leader>gp <Plug>(GitGutterPrevHunk) :call repeat#set("\<Plug>(GitGutterPrevHunk)")<CR>
+nmap <silent> <Plug>(GitGutterCycleHunksNext) :silent! call GitCycleHunks(0) \| call repeat#set("\<Plug>(GitGutterCycleHunksNext)")<CR>
+nmap <silent> <Plug>(GitGutterCycleHunksPrev) :silent! call GitCycleHunks(-1) \| call repeat#set("\<Plug>(GitGutterCycleHunksPrev)")<CR>
+nmap <silent> <leader>gn <Plug>(GitGutterCycleHunksNext)
+nmap <silent> <leader>gp <Plug>(GitGutterCycleHunksPrev)
 nmap <leader>gi <Plug>(GitGutterPreviewHunk)
 nmap <leader>gu <Plug>(GitGutterUndoHunk)
 nmap <leader>gs <Plug>(GitGutterStageHunk)
@@ -177,6 +193,18 @@ omap ig <Plug>(GitGutterTextObjectInnerPending)
 omap ag <Plug>(GitGutterTextObjectOuterPending)
 xmap ig <Plug>(GitGutterTextObjectInnerVisual)
 xmap ag <Plug>(GitGutterTextObjectOuterVisual)
+
+function! GitCycleHunks(n)
+	let l:current = line('.')
+	if a:n == 0
+		GitGutterNextHunk
+	else
+		GitGutterPrevHunk
+	endif
+	if l:current == line('.')
+		call cursor(GitGutterGetHunks()[a:n][2], 1)
+	endif
+endfunction
 
 " term buffer
 augroup custom_term
@@ -220,11 +248,6 @@ autocmd! Filetype vim,help nnoremap <silent><buffer> K :norm! K<CR>
 
 command! Ini :e $MYVIMRC
 cabbrev ini Ini
-
-nmap <silent> <Plug>qfl-next :cnext \| call repeat#set("\<Plug>qfl-next")<CR>
-nmap <silent> <Plug>qfl-prev :cprevious \| call repeat#set("\<Plug>qfl-prev")<CR>
-nmap ]q <Plug>qfl-next
-nmap [q <Plug>qfl-prev
 
 set wildignore+=*node_modules/**,*bin/**,*build/**,*obj**,*plugged/**,*doc/**
 
@@ -358,9 +381,8 @@ function! ParseBackslash(region) abort
 	let l:c = 0
 	let l:new_list = []
 	while l:c < len(a:region)
-		if match(a:region[l:c], '\s\+\\') != -1
-			let l:len = len(l:new_list) - 1
-			let l:new_list[l:len] = l:new_list[l:len] . substitute(a:region[l:c], '^\s\+\\', '', '')
+		if match(a:region[l:c], '^\s\+\\') != -1
+			let l:new_list[-1] = l:new_list[-1] . substitute(a:region[l:c], '^\s\+\\', '', '')
 		else
 			call add(l:new_list, a:region[l:c])
 		endif
@@ -370,16 +392,16 @@ function! ParseBackslash(region) abort
 endfunction
 
 cnoremap <c-q> <esc>q:k
-cnoremap <C-a> <Home>
-cnoremap <C-e> <End>
+cnoremap <c-a> <Home>
+cnoremap <c-e> <End>
 cnoremap <c-D> <Del>
-cnoremap <M-d> <s-Right><c-w>
-cnoremap <C-p> <Up>
-cnoremap <C-n> <Down>
-cnoremap <C-b> <Left>
-cnoremap <C-f> <Right>
-cnoremap <M-b> <S-Left>
-cnoremap <M-f> <S-Right>
+cnoremap <m-d> <s-Right><c-w><Del>
+cnoremap <c-p> <Up>
+cnoremap <c-n> <Down>
+cnoremap <c-b> <Left>
+cnoremap <c-f> <Right>
+cnoremap <m-b> <S-Left>
+cnoremap <m-f> <S-Right>
 
 nnoremap yap mmyap`m
 nnoremap yip mmyip`m
@@ -423,7 +445,7 @@ function! CommentLine(pattern) abort
 	let l:line = trim(getline('.'))
 	if l:line == ""
 	elseif IsCommented(l:line, a:pattern)
-		call setline('.', AddIndent(GetIndent('.')) . l:line[len(a:pattern[0]):-len(a:pattern[1])-1])
+		call setline('.', AddIndent(GetIndent('.')) . l:line[len(a:pattern[0]):len(a:pattern[1])-1])
 	else
 		call setline('.', AddIndent(GetIndent('.')) . a:pattern[0] . l:line . a:pattern[1])
 	endif
@@ -467,7 +489,7 @@ function! CommentRegion(pattern, boundaries) abort
 		while l:current <= a:boundaries[1]
 			let l:current_line = trim(getline(l:current))
 			if IsCommented(l:current_line, a:pattern)
-				call setline(l:current, AddIndent(GetIndent(l:current)) . l:current_line[len(a:pattern[0]):-len(a:pattern[1])-1])
+				call setline(l:current, AddIndent(GetIndent(l:current)) . l:current_line[len(a:pattern[0]):len(a:pattern[1])-1])
 			endif
 			let l:current += 1
 		endwhile
@@ -535,7 +557,7 @@ function! BulkShdoRename() abort
 	silent! %!column -t -s '\/'
 endfunction
 
-nnoremap <leader>rs %s/
+nnoremap <leader>rs :%s/
 vnoremap <leader>r :s/\%V
 
 nnoremap <leader>ell :exe "lua " . getline('.')<CR>
@@ -566,7 +588,10 @@ nnoremap <leader>so :OldFiles<space>
 
 augroup set_path
 	autocmd!
-	autocmd VimEnter * if filereadable('./Gemfile') | set path=.*,app/**,spec/**,db/**,.,* | endif
+	autocmd VimEnter * 
+				\ if filereadable('./Gemfile') | set path=.*,app/**,spec/**,db/**,.,*
+				\ | elseif filereadable('./package.json') | set path=.*,src/**,.,* 
+				\ | endif
 augroup END
 
 command! SudoWrite exe 'w !SUDO_ASKPASS=`which ssh-askpass` sudo tee > /dev/null %:p:S' | setlocal nomod
@@ -579,5 +604,12 @@ nnoremap <f2> <c-t>
 inoremap <c-f> <Right>
 inoremap <c-b> <Left>
 
-command! Colscm e ~/.config/nvim/init.vim | call search('^colorscheme ') | norm w
+function! JsImport(file)
+	let l:fpath = split(system('find src/** -name "*' . a:file . '*"'), '\n')[0]
+	let l:fpath = "import " . a:file . " from '" . substitute(l:fpath, '^src/', './', '') . "';"
+	call append(1, l:fpath)
+endfunction
 
+nnoremap <leader>a. :call JsImport(expand('<cword>'))<CR>
+
+nnoremap tf :call Float(0.7, 0.8) \| exe "term"<CR>
