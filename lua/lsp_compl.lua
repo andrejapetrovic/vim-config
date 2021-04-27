@@ -1,16 +1,15 @@
 function setup()
-	local lsp = require('nvim_lsp')
+	local lsp = require('lspconfig')
 
-	local attach = function()
-		require'completion'.on_attach()
-		require'diagnostic'.on_attach()
-	end
-	lsp.tsserver.setup {
-		on_attach=attach,
+	lsp.tsserver.setup {}
+	lsp.omnisharp.setup { }
+	lsp.gopls.setup {}
+
+	vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+	vim.lsp.diagnostic.on_publish_diagnostics, {
+		virtual_text = false
 	}
-	lsp.omnisharp.setup {
-		on_attach=attach,
-	}
+	)
 end
 
 return setup()

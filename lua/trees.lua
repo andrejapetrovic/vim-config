@@ -1,6 +1,6 @@
 function setup()
 	require'nvim-treesitter.configs'.setup {
-		ensure_installed = { "c", "c_sharp", "javascript", "typescript", "ruby", "lua" },
+		ensure_installed = { "c", "c_sharp", "javascript", "typescript", "ruby", "lua", "python", "go" },
 		highlight = {
 			enable = true,
 		},

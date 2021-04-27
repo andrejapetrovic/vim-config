@@ -63,3 +63,4 @@ function! BuffWinDelete(bang)
 endfunction
 
 nnoremap <silent> <leader>l :call BufferWindow(execute('ls'))<CR>
+

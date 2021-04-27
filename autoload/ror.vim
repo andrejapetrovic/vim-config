@@ -54,6 +54,7 @@ function! ror#ri_docs(term) abort
 	split /tmp/ri_docs
 	exe 'r !bundle exec ri ' . a:term . ' --no-interactive --no-pager --format=rdoc'
 	setlocal syntax=markdown
+	silent exe ':%s/<tt>\|<\/tt>\|<b>\|<\/b>\|<em>\|<\/em>//g'
 	norm! ggdd
 	setlocal bufhidden=wipe buftype=nofile nobuflisted noswapfile ignorecase smartcase nomodifiable nomodified
 	syntax clear markdownError

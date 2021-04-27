@@ -2,8 +2,6 @@ call plug#begin('~/.config/nvim/plugged')
 	Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 	Plug 'junegunn/fzf.vim'
 	Plug 'neovim/nvim-lspconfig'
-	Plug 'nvim-lua/completion-nvim'
-	Plug 'nvim-lua/diagnostic-nvim'
 	Plug 'airblade/vim-gitgutter'
 	Plug 'junegunn/gv.vim'
 	Plug 'tpope/vim-surround'
@@ -20,13 +18,16 @@ call plug#begin('~/.config/nvim/plugged')
 	Plug 'nvim-treesitter/nvim-treesitter-refactor'
 	Plug 'ludovicchabant/vim-gutentags'
 	Plug 'justinmk/vim-dirvish'
+	Plug 'dense-analysis/ale'
+	" Plug 'vimpostor/vim-tpipeline'
+	" Plug 'hrsh7th/nvim-compe'
 call plug#end()
 
 filetype plugin on
 set mouse=a
 set relativenumber number
 set updatetime=100
-set signcolumn=yes
+set signcolumn=yes:2
 set clipboard=unnamedplus
 set termguicolors
 set nohlsearch
@@ -44,8 +45,8 @@ set nobackup
 set nowritebackup
 set hidden
 
-set background=dark
-colorscheme hybrid
+set background=light
+colorscheme PaperColor
 
 map <Space> <Nop>
 let mapleader = " "
@@ -117,10 +118,12 @@ nnoremap <leader>sv :vert sf *
 
 nnoremap Y y$
 nnoremap gb :ls<CR>:b<Space>
-nnoremap <silent> <c-k> :bnext<CR>
-nnoremap <silent> <c-j> :bprevious<CR>
+" nnoremap <silent> <c-k> :bnext<CR>
+" nnoremap <silent> <c-j> :bprevious<CR>
+nnoremap <silent> <c-k> gk
+nnoremap <silent> <c-j> gj
 nnoremap <leader>d <c-^>
-nnoremap <CR> <c-^>
+nnoremap <cr> <c-^>
 nnoremap <leader>n *
 nnoremap <leader>N #
 nnoremap <leader>b gea
@@ -146,7 +149,7 @@ command! -bang -nargs=* Rg
 autocmd! VimResized,VimEnter * call ResizeFZF()
 
 function! ResizeFZF()
-	if &columns < 110
+	if &columns < 150
 		let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.7 } }
 	else
 		let g:fzf_layout = { 'window': { 'width': 0.5, 'height': 0.7 } }
@@ -219,6 +222,7 @@ nmap <leader>gg :G<CR>
 nmap <leader>gv :Gvdiff<CR>
 nmap <leader>g2 :diffget //2<CR>
 nmap <leader>g3 :diffget //3<CR>
+nmap <leader>gb :Gblame<CR>
 
 set statusline =\ %f\ \ [%p%%]\ \ %L%=%{fugitive#statusline()}\ [%(%l,%c%V%)]
 
@@ -251,7 +255,7 @@ cabbrev ini Ini
 
 set wildignore+=*node_modules/**,*bin/**,*build/**,*obj**,*plugged/**,*doc/**
 
-lua require'lsp_compl'
+" lua require'lsp_compl'
 
 nnoremap <silent> <leader>aD 	<cmd>lua vim.lsp.buf.declaration()<CR>
 nnoremap <silent> <leader>ad 	<cmd>lua vim.lsp.buf.definition()<CR>
@@ -266,22 +270,40 @@ nnoremap <silent> <leader>af 	<cmd>lua vim.lsp.buf.formatting()<CR>
 nnoremap <silent> <leader>aa 	<cmd>lua vim.lsp.buf.code_action()<CR>
 nnoremap <silent> <leader>. 	<cmd>lua vim.lsp.buf.code_action()<CR>
 nnoremap <silent> <leader>rm 	<cmd>lua vim.lsp.buf.rename()<CR>
-nnoremap <silent> <leader>k 	<cmd>lua vim.lsp.util.show_line_diagnostics()<CR>
+nnoremap <silent> <leader>k 	<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>
 
-set completeopt=menuone,noinsert
-set shortmess+=c
+" set completeopt=menuone,noselect
 
-let g:completion_enable_auto_popup = 0
-let g:completion_enable_auto_signature = 0
-let g:completion_enable_snippet = 'vim-vsnip'
-let g:completion_timer_cycle = 500
+" let g:compe = {}
+" let g:compe.enabled = v:true
+" let g:compe.autocomplete = v:false
+" let g:compe.debug = v:false
+" let g:compe.min_length = 1
+" let g:compe.preselect = 'enable'
+" let g:compe.throttle_time = 80
+" let g:compe.source_timeout = 200
+" let g:compe.incomplete_delay = 400
+" let g:compe.max_abbr_width = 100
+" let g:compe.max_kind_width = 100
+" let g:compe.max_menu_width = 100
+" let g:compe.documentation = v:true
 
-let g:completion_confirm_key = ""
-imap <expr> <cr>  pumvisible() ? complete_info()["selected"] != "-1" ?
-			\ "\<Plug>(completion_confirm_completion)" : "\<c-e>\<CR>" : "\<CR>"
+" let g:compe.source = {}
+" let g:compe.source.path = v:false
+" let g:compe.source.buffer = v:false
+" let g:compe.source.calc = v:false
+" let g:compe.source.vsnip = v:true
+" let g:compe.source.nvim_lsp = v:true
+" let g:compe.source.nvim_lua = v:true
+" let g:compe.source.spell = v:false
+" let g:compe.source.tags = v:false
+" let g:compe.source.snippets_nvim = v:false
+" let g:compe.source.treesitter = v:false
+" let g:compe.source.omni = v:false
 
-let g:diagnostic_enable_virtual_text = 1
-let g:diagnostic_auto_popup_while_jump = 0
+" inoremap <silent><expr> <C-Space> compe#complete()
+" inoremap <silent><expr> <CR>      compe#confirm('<CR>')
+" inoremap <silent><expr> <C-e>     compe#close('<C-e>')
 
 let g:vsnip_snippet_dir='~/.config/nvim/snippets/'
 
@@ -301,35 +323,16 @@ let g:vsnip_filetypes.javascriptreact = ['javascript']
 let g:vsnip_filetypes.typescriptreact = ['typescript']
 let g:vsnip_filetypes.eruby = ['html']
 
-imap <silent> <c-space> <Plug>(completion_trigger)
+nmap <silent> <Plug>(diag-next) :exe "lua vim.lsp.diagnostic.goto_next()" \| call repeat#set("\<Plug>(diag-next)")<CR>
+nmap <silent> <Plug>(diag-prev) :exe "lua vim.lsp.diagnostic.goto_prev()" \| call repeat#set("\<Plug>(diag-prev)")<CR>
 
-nnoremap <silent> <leader>an :NextDiagnosticCycle<CR>
-nnoremap <silent> <leader>ap :PrevDiagnosticCycle<CR>
-
-function! ToggleDiagType()
-	w
-	if g:diagnostic_enable_virtual_text == 0
-		let g:diagnostic_enable_virtual_text = 1
-		let g:diagnostic_auto_popup_while_jump = 0
-	else
-		let g:diagnostic_enable_virtual_text = 0
-		let g:diagnostic_auto_popup_while_jump = 1
-	endif
-	e
-endfunction
-
-command! ToggleVirtualText call ToggleDiagType()
-nnoremap <silent> <leader>se :call ToggleDiagType()<CR>
+nmap <silent> <leader>an <Plug>(diag-next)
+nmap <silent> <leader>ap <Plug>(diag-prev)
 
 set laststatus=2
 nnoremap <expr> <silent> <leader>gt &laststatus == 0 ? ':set laststatus=2<CR>' : ':set laststatus=0<CR>'
 
 nnoremap yp Vpyy
-
-if exists('$TMUX')
-		autocmd BufEnter * call system("tmux rename-window '" . expand("%:t") . "'")
-		autocmd VimLeave * call system("tmux setw automatic-rename")
-endif
 
 let g:tmux_target_pane = "{right-of}"
 
@@ -418,6 +421,7 @@ vnoremap <M-p> "0p
 augroup makeprgs
 		autocmd!
 		autocmd Filetype c set makeprg=gcc\ -o\ %<\ %\ &&\ ./%:r
+		autocmd Filetype go set makeprg=go\ run\ %
 augroup END
 
 function! SetCommentPattern() abort
@@ -564,7 +568,7 @@ nnoremap <leader>ell :exe "lua " . getline('.')<CR>
 nnoremap <leader>elp :exe "lua " . join(GetParagraph(), '')<CR>
 vnoremap <leader>l <esc>:<c-u>exe "lua " . join(GetVisual(), '')<CR>
 
-source $HOME/.config/nvim/float.vim
+" source $HOME/.config/nvim/float.vim
 
 command! OpenLink !chromium <cWORD>
 
@@ -612,4 +616,73 @@ endfunction
 
 nnoremap <leader>a. :call JsImport(expand('<cword>'))<CR>
 
-nnoremap tf :call Float(0.7, 0.8) \| exe "term"<CR>
+" nnoremap tf :call Float(0.7, 0.8) \| exe "term"<CR>
+
+nnoremap <leader><tab> :suspend<CR>
+
+command! Bdel exe "bd " . join(filter(map(split(execute('buffers'), '\n'), {_,x -> split(x, ' ')[0]}), {_,x -> x != bufnr()}))
+
+let g:ale_disable_lsp = 1
+let g:ale_ruby_rubocop_executable = 'bundle'
+let g:ale_sign_column_always = 1
+let g:ale_set_highlights = 0
+let g:ale_linters = {
+\   'javascript': ['eslint'],
+\   'ruby': ['rubocop'],
+\}
+
+let g:ale_fixers = {
+\   'ruby': ['rubocop'],
+\}
+
+nmap <silent> <Up> <Plug>(ale_previous_wrap)
+nmap <silent> <Down> <Plug>(ale_next_wrap)
+
+command! GoDocLink exe '!chromium ' . substitute(substitute(getline('.'), '.*(', '', ''), ').*', '', '')
+
+inoremap <M-;> ::
+nnoremap <leader>z /#\d<CR>y$ggi[]<esc>PA<space>
+
+augroup expand_tab
+		autocmd!
+		autocmd FileType cucumber set expandtab | set tabstop=2 | set shiftwidth=2
+augroup END
+
+inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<cr>"
+
+nnoremap <silent> g<tab> :bnext<cr>
+nnoremap <silent> g\ :bprev<cr>
+
+function! BufferSplit()
+	let g:current_buffer = escape(substitute(bufname(), $HOME, '~', ''), '~/')
+	exec winheight(0)/5."split /tmp/buffers"
+	setlocal bufhidden=wipe buftype=nofile nobuflisted noswapfile ignorecase smartcase cursorline nonumber norelativenumber
+	let @o = execute('ls')
+	silent put o
+	silent call deletebufline('%', 1, 2)
+	silent exe '%s/"//g'
+	setlocal nomodifiable nomodified
+	exe 'resize ' line('$')
+	set laststatus=0
+	call search(g:current_buffer)
+	norm! 0
+	nnoremap <buffer><silent> <ESC> :set laststatus=2 \| :q<CR>
+	nnoremap <buffer><silent> l :call OpenUp()<cr>
+	nnoremap <buffer><silent> dd :call DeleteBuf()<cr>
+endfunction
+
+nnoremap <silent> gb :call BufferSplit()<cr>
+
+function! OpenUp()
+	let l:command = "b " . split(getline("."))[0]
+	wincmd k
+	exe l:command
+endfunction
+
+function! DeleteBuf()
+	setlocal modifiable
+	exe "bd " . split(getline('.'))[0]
+	call deletebufline('%', line('.'))
+	setlocal nomodifiable
+endfunction
+
